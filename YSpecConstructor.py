@@ -26,11 +26,9 @@ class YSpecConstructor(object):
     def __init__(self, source_spec=None, **kwargs):
         """
         """
-        from . import get_yaml
-        import ruamel.yaml as yaml
-        self.source_spec = get_yaml(source_spec)
-        print(yaml.dump(self.source_spec,
-          Dumper=yaml.RoundTripDumper, indent=4, block_seq_indent=2))
+        from . import yaml_load, yaml_dump
+        self.source_spec = yaml_load(source_spec)
+        print(yaml_dump(self.source_spec))
         # Read yaml file?
         # Should be possible to set defaults and presets from string or file
         # if os.path.isfile(defaults):

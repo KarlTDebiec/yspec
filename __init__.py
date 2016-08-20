@@ -15,11 +15,14 @@ General functions.
   - format_spec
     - Allow cutoff at 80 columns (or otherwise) with ...
     - Colored output based on source
-  - get_yaml
+  - yaml_load
     - Double-check that warning/exception text wraps correctly
 """
 ################################### MODULES ###################################
 from __future__ import absolute_import,division,print_function,unicode_literals
+import re
+import ruamel.yaml as yaml
+import six
 ################################## FUNCTIONS ##################################
 def wrapprint(text, width=80, subsequent_indent="  ", **kwargs):
     """
@@ -33,7 +36,6 @@ def wrapprint(text, width=80, subsequent_indent="  ", **kwargs):
       kwargs (dict): Additional keyword arguments passed to
         :func:`TextWrapper`
     """
-    import re
     from textwrap import TextWrapper
 
     tw = TextWrapper(width=width, subsequent_indent=subsequent_indent,
@@ -49,7 +51,6 @@ def sformat(text, **kwargs):
     Returns:
       str: *text* with all whitespace replaced with single spaces
     """
-    import re
 
     return(re.sub(r"\s+", " ", text))
 
@@ -57,7 +58,6 @@ def format_spec(spec, string_="", indent="    ", level=0, **kwargs):
     """
     Formats specification for print
     """
-    import six
 
     if not isinstance(spec, dict):
         raise Exception()
@@ -92,18 +92,18 @@ def format_spec(spec, string_="", indent="    ", level=0, **kwargs):
         string_ = string_.rstrip()
     return string_
 
-def get_yaml(input):
+def yaml_load(input_):
     """
     Generates data structure from yaml input. 
 
     Arguments:
-      input (str, dict): yaml input; if str, tests whether or not it is
+      input_ (str, dict): yaml input; if str, tests whether or not it is
         a path to a yaml file. If it is, the file is loaded using yaml;
         if it is not a file, the string itself is loaded using yaml. If
         dict, returned without modification
 
     Returns:
-      dict: Data structure specified by input
+      dict: Data structure specified by *input_*
 
     Warns:
       UserWarning: Loaded data structure is a string; occurs if input
@@ -114,36 +114,40 @@ def get_yaml(input):
     """
     from os.path import isfile
     from warnings import warn
-    import ruamel.yaml as yaml
-    import six
 
     if six.PY2:
         open_yaml = file
     else:
         open_yaml = open
 
-    if isfile(input):
-        with open_yaml(input, "r") as infile:
-            return yaml.load(infile, Loader=yaml.RoundTripLoader)
-#    if isinstance(input, dict):
-#        return input
-#    elif isinstance(input, six.string_types):
-#        if isfile(input):
-#            with open_yaml(input, "r") as infile:
-#                return yaml.load(infile)
-#        else:
-#            output = yaml.load(input)
-#            if isinstance(output, str):
-#                warn("""yspec.get_yaml() has loaded input '{0}' as a string
-#                  rather than a dictionary or other data structure; if input
-#                  was intended as an infile it was not
-#                  found.)""".format(input))
-#            return output
-#    elif input is None:
-#        warn("""yspec.get_yaml() has been asked to load input 'None', and will
-#          return an empty dictionary.""")
-#        return {}
-#    else:
-#        raise TypeError("""yspec.get_yaml() does not support input of type {0};
-#          input may be a string path to a yaml file, a yaml-format string, or a
-#          dictionary.""".format(input.__class__.__name__))
+    if isinstance(input_, six.string_types):
+        if isfile(input_):
+            with open_yaml(input_, "r") as infile:
+                return yaml.load(infile, Loader=yaml.RoundTripLoader)
+        else:
+            output = yaml.load(input_, Loader=yaml.RoundTripLoader)
+            if isinstance(output, six.string_types):
+                warn("""yspec.yaml_load() has loaded input '{0}' as a string
+                  rather than a dictionary or other data structure; if input
+                  was intended as an infile it was not
+                  found.)""".format(input_))
+            return output
+    elif input_ is None:
+        warn("""yspec.yaml_load() has been asked to load input 'None', and will
+          return an empty dictionary.""")
+        return {}
+    else:
+        raise TypeError("""yspec.yaml_load() does not support input of type
+          '{0}'; input may be a string containing the path to a yaml file, a
+          string containing yaml-formatted data, or a
+          dict.""".format(input.__class__.__name__))
+
+def yaml_dump(spec, **kwargs):
+    """
+    """
+    dump_kw = dict(
+      Dumper = yaml.RoundTripDumper,
+      indent = 4,
+      block_seq_indent = 2)
+    dump_kw.update(kwargs)
+    return yaml.dump(spec, **dump_kw)

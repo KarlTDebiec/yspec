@@ -1,11 +1,8 @@
 Introduction
 ============
 
-YSpec is a Python package used to write matplotlib-based plotting tools
-that support powerful configuration options using the simple text format YAML.
-
-YSpec is a Python package used to construct input arguments for programs using
-the simple text format YAML.
+YSpec is a Python package used to construct input argument specifications for
+programs using the simple text format YAML.
 
 Dependencies
 ------------

@@ -10,7 +10,13 @@
 General functions.
 
 .. todo:
-  - Check InterSphinx link in wrapprint
+  - wrapprint
+    - Check InterSphinx link
+  - format_spec
+    - Allow cutoff at 80 columns (or otherwise) with ...
+    - Colored output based on source
+  - get_yaml
+    - Double-check that warning/exception text wraps correctly
 """
 ################################### MODULES ###################################
 from __future__ import absolute_import,division,print_function,unicode_literals
@@ -46,6 +52,45 @@ def sformat(text, **kwargs):
     import re
 
     return(re.sub(r"\s+", " ", text))
+
+def format_spec(spec, string_="", indent="    ", level=0, **kwargs):
+    """
+    Formats specification for print
+    """
+    import six
+
+    if not isinstance(spec, dict):
+        raise Exception()
+    for key in sorted(spec.keys()):
+        value = spec[key]
+        string_ += "{0}{1}:".format(indent*level, key)
+        if isinstance(value, dict):
+            string_ += "\n"
+            string_ += format_spec(value, indent=indent, level=level+1,
+                         **kwargs)
+        elif isinstance(value, list):
+            list_string = ""
+            for item in value:
+                list_string += "  - "
+                if isinstance(item, dict):
+                    list_string += format_spec(item, indent=indent, level=1,
+                                     **kwargs).strip() + "\n"
+                else:
+                    list_string += "{0}\n".format(item)
+            string_ += "\n{0}".format(list_string).replace("\n",
+                         "\n{0}".format(indent*(level))).rstrip() + "\n"
+        elif isinstance(value, six.string_types):
+            if value == ":":
+                string_ += " \"{0}\"\n".format(value)
+            else:
+                string_ += " {0}\n".format(value)
+        # If it is a string, check for reserved symbols (e.g. ':') and wrap
+        # them in quotes
+        else:
+            string_ += " {0}\n".format(value)
+    if level == 0:
+        string_ = string_.rstrip()
+    return string_
 
 def get_yaml(input):
     """

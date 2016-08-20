@@ -26,9 +26,9 @@ class YSpecConstructor(object):
     def __init__(self, source_spec=None, **kwargs):
         """
         """
-        from . import get_yaml
+        from . import get_yaml, format_spec
         self.source_spec = get_yaml(source_spec)
-        print(self.source_spec)
+        print(format_spec(self.source_spec))
         # Read yaml file?
         # Should be possible to set defaults and presets from string or file
         # if os.path.isfile(defaults):
@@ -67,7 +67,9 @@ def main():
     # Arguments from plugins
     #   Defaults infile
     #   Presets infile
+    parser.set_defaults(class_=YSpecConstructor)
     kwargs = vars(parser.parse_args())
+    kwargs.pop("class_")(**kwargs)
 
 if __name__ == "__main__":
     main()

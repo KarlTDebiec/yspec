@@ -114,7 +114,7 @@ def get_yaml(input):
     """
     from os.path import isfile
     from warnings import warn
-    import yaml
+    import ruamel.yaml as yaml
     import six
 
     if six.PY2:
@@ -122,25 +122,28 @@ def get_yaml(input):
     else:
         open_yaml = open
 
-    if isinstance(input, dict):
-        return input
-    elif isinstance(input, six.string_types):
-        if isfile(input):
-            with open_yaml(input, "r") as infile:
-                return yaml.load(infile)
-        else:
-            output = yaml.load(input)
-            if isinstance(output, str):
-                warn("""yspec.get_yaml() has loaded input '{0}' as a string
-                  rather than a dictionary or other data structure; if input
-                  was intended as an infile it was not
-                  found.)""".format(input))
-            return output
-    elif input is None:
-        warn("""yspec.get_yaml() has been asked to load input 'None', and will
-          return an empty dictionary.""")
-        return {}
-    else:
-        raise TypeError("""yspec.get_yaml() does not support input of type {0};
-          input may be a string path to a yaml file, a yaml-format string, or a
-          dictionary.""".format(input.__class__.__name__))
+    if isfile(input):
+        with open_yaml(input, "r") as infile:
+            return yaml.load(infile, Loader=yaml.RoundTripLoader)
+#    if isinstance(input, dict):
+#        return input
+#    elif isinstance(input, six.string_types):
+#        if isfile(input):
+#            with open_yaml(input, "r") as infile:
+#                return yaml.load(infile)
+#        else:
+#            output = yaml.load(input)
+#            if isinstance(output, str):
+#                warn("""yspec.get_yaml() has loaded input '{0}' as a string
+#                  rather than a dictionary or other data structure; if input
+#                  was intended as an infile it was not
+#                  found.)""".format(input))
+#            return output
+#    elif input is None:
+#        warn("""yspec.get_yaml() has been asked to load input 'None', and will
+#          return an empty dictionary.""")
+#        return {}
+#    else:
+#        raise TypeError("""yspec.get_yaml() does not support input of type {0};
+#          input may be a string path to a yaml file, a yaml-format string, or a
+#          dictionary.""".format(input.__class__.__name__))

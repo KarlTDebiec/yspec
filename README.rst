@@ -12,6 +12,7 @@ Dependencies
 
 YSpec supports Python 2.7, and requires the following packages:
 
+- six
 - yaml
 
 Authorship

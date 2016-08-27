@@ -18,37 +18,13 @@ if __name__ == "__main__":
 ################################### CLASSES ###################################
 class YSpecConstructor(object):
     """
-    - Where to store source spec?
-    - Where to store list of plugins?
-    - Formatted printing option that returns list of strings
     """
 
-    def __init__(self, source_spec=None, **kwargs):
-        """
-        """
-        from . import yaml_load, yaml_dump
-        self.source_spec = yaml_load(source_spec)
-        print(yaml_dump(self.source_spec))
-        # Read yaml file?
-        # Should be possible to set defaults and presets from string or file
-        # if os.path.isfile(defaults):
-        #   self.available_defaults = pyyaml.read(defaults)
-        # elif:
-        #   self.available_defaults = defaults
-        # Call construct with kwargs
-
-    def construct(self, kwargs):
-        """
-        """
-        pass
-        # Each plugin must be passed this object
-        #   (Almost) all will want to read nascent and source specs
-        #   Defaults and Presets also need to access attributes of the
-        #   constructor
-        # Should not need to know about other plugins
 
 #################################### MAIN #####################################
 def main():
+    """
+    """
     import argparse
 
     # Prepare argument parser
@@ -61,13 +37,9 @@ def main():
       metavar  = "SPEC",
       type     = str,
       help     = "input file from which to load specification")
-
-    # Source spec infile
-    # Plugins
-    # Arguments from plugins
-    #   Defaults infile
-    #   Presets infile
     parser.set_defaults(class_=YSpecConstructor)
+
+    # Parse arguments
     kwargs = vars(parser.parse_args())
     kwargs.pop("class_")(**kwargs)
 

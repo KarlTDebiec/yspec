@@ -75,6 +75,8 @@ class ManualPlugin(YSpecPlugin):
             if source_key in indexed_levels:
                 # Apply arguments from "all" before arguments from specific
                 # indexes
+                if source_spec.get(source_key) is None:
+                    continue
                 if "all" in source_spec.get(source_key, {}):
                     for index in sorted([k for k in spec[source_key]
                     if str(k).isdigit()]):

@@ -14,14 +14,14 @@ Test Constructor
 from __future__ import absolute_import,division,print_function,unicode_literals
 import ruamel.yaml as yaml
 from yspec.YSpecConstructor import YSpecConstructor
-from yspec.plugins.InitializePlugin import InitializePlugin
-from yspec.plugins.DefaultsPlugin import DefaultsPlugin
-from yspec.plugins.PresetsPlugin import PresetsPlugin
-from yspec.plugins.ManualPlugin import ManualPlugin
 ################################### CLASSES ###################################
 class TestYSpecConstructor(YSpecConstructor):
     """
     """
+    from yspec.plugins.InitializePlugin import InitializePlugin
+    from yspec.plugins.DefaultsPlugin import DefaultsPlugin
+    from yspec.plugins.PresetsPlugin import PresetsPlugin
+    from yspec.plugins.ManualPlugin import ManualPlugin
 
     available_plugins = dict(
       initialize = InitializePlugin,
@@ -29,77 +29,42 @@ class TestYSpecConstructor(YSpecConstructor):
       presets    = PresetsPlugin,
       manual     = ManualPlugin)
     indexed_levels = """
-      figures:
-          subplots:
-              datasets:"""
+      level_1:
+          level_2:
+              level_3:"""
     plugin_config = dict(
       defaults = """
         defaults:
-          yumbo: elephant
-          figures:
-            subplot_kw:
-              autoscale_on: False
-              axisbg: none
-            subplots:
-              hand: stump
-              datasets:
-                nay: bama""",
+          default_0.0: default_0.0_value
+          level_1:
+            default_1.1:
+              default_1.1.1: default_1.1.1_value
+            level_2:
+              default_2.1: default_2.1_value
+              level_3:
+                default_3.1: default_3.1_value""",
       presets = """
         available_presets:
-          letter:
-            _class: target
-            _help: Letter (width ≤ 6.5", height ≤ 9.0")
-            figures:
-              fig_width: 100.00
-              subplots:
-                title_fp: 16b
-                datasets:
-                  plot_kw:
-                    lw: 2
-          manuscript:
-            _class: target
-            _help: Manuscript (width ≤ 7.0", height ≤ 9.167")
-            herp: derp
-            perp:
-                merp: sperp
-            figures:
-              fig_width: 10.00
-              shared_legend_kw:
-                legend_kw:
-                  title_fp:  8b
-              subplots:
-                title_fp: 8b
-                datasets:
-                  plot_kw:
-                    lw: 1
-          dssp:
-            _class: content
-            _help: Dynamic secondary structure of proteins calculated by cpptraj
-            asdf: fdsa
-            figures:
-              shared_legend: True
-              shared_legend_kw:
-                handles:
-                  - ["None",                 {color: [0,0,7]}]
-                  - ["Parallel β Sheet",     {color: [1,0,7]}]
-                  - ["Antiparallel β Sheet", {color: [2,0,7]}]
-                legend_kw:
-                  title: Secondary Structure
-              subplots:
-                ylabel: Residue
-                datasets:
-                  dataset_kw:
-                    downsample_mode: mode
-          perresrmsd:
-            _class: content
-            _help: Per-residue RMSD calculated by cpptraj
-            figures:
-              shared_legend: False
-              subplots:
-                ylabel: yoop
-                datasets:
-                  dataset_kw:
-                  downsample_mode: mean
+          preset_1:
+            _class: preset_class_1
+            _help: Preset #1
+            level_1:
+              preset_1_1.1:
+                preset_1_1.1.1: preset_1_1.1.1_value
+              level_2:
+                preset_1_2.1: preset_1_2.1_value
+                level_3:
+                  preset_1_3.1: preset_1_3.1_value
+          preset_2:
+            _class: preset_class_1
+            _help: Preset #2
+            level_1:
+              preset_2_1.1:
+                preset_2_1.1.1: preset_2_1.1.1_value
+              level_2:
+                preset_2_2.1: preset_2_2.1_value
+                level_3:
+                  preset_2_3.1: preset_2_3.1_value
       """)
 
     def __init__(self, source_spec=None, **kwargs):
@@ -112,8 +77,6 @@ class TestYSpecConstructor(YSpecConstructor):
         self.source_spec = yaml_load(source_spec)
         spec = yaml.comments.CommentedMap()
 
-        print()
-        print(yaml_dump(spec))
         print()
 
         for plugin_name in plugins:

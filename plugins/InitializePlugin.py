@@ -64,14 +64,17 @@ class InitializePlugin(YSpecPlugin):
         """
 
         # Process arguments
-        if indexed_levels is None:
+        if indexed_levels is None or source_spec is None:
             return
 
+        # Loop over indexed levels at this level
         for level in [k for k in indexed_levels if k in source_spec]:
+            if source_spec.get(level) is None:
+                continue
             if level not in spec:
                 spec[level] = {}
             # Loop over indexes
-            for index in sorted([k for k in source_spec.get(level, {})
+            for index in sorted([k for k in source_spec[level]
             if str(k).isdigit()]):
                 # Add dict in which to store lower levels
                 spec[level][index] = {}

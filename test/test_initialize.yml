@@ -1,43 +1,8 @@
-figures:
-    0:
-        subplots:
-            0:
-                datasets:
-                    1: {}
-                    2: {}
-                    14: {}
-                    15: {}
-            1:
-                datasets:
-                    1: {}
-                    2: {}
-                    14: {}
-                    15: {}
-    1:
-        subplots:
-            0:
-                datasets:
-                    1: {}
-                    2: {}
-                    14: {}
-                    15: {}
-            1:
-                datasets:
-                    1: {}
-                    2: {}
-                    14: {}
-                    15: {}
+level_1:
+    0: {}
+    1: {}
     2:
-        subplots:
+        level_2:
             0:
-                datasets:
-                    1: {}
-                    2: {}
-                    14: {}
-                    15: {}
-            1:
-                datasets:
-                    1: {}
-                    2: {}
-                    14: {}
-                    15: {}
+                level_3:
+                    0: {}

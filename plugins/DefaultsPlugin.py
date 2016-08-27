@@ -76,12 +76,16 @@ class DefaultsPlugin(YSpecPlugin):
             return
         if indexed_levels is None:
             indexed_levels = {}
+        if source_spec is None:
+            source_spec = {}
 
         # Loop over default argument keys and values at this level
         for default_key, default_val in defaults.items():
 
             # This level is indexed; loop over indexes as well
             if default_key in indexed_levels:
+                if default_key not in spec:
+                    continue
                 for index in sorted([k for k in spec[default_key]
                 if str(k).isdigit()]):
                     self.process_level(

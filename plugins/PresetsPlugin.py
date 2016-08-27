@@ -15,6 +15,7 @@ from __future__ import absolute_import,division,print_function,unicode_literals
 if __name__ == "__main__":
     __package__ = str("yspec.plugins")
     import yspec.plugins
+import six
 from .. import yaml_load, yaml_dump
 from . import YSpecPlugin
 ################################### CLASSES ###################################
@@ -87,8 +88,13 @@ class PresetsPlugin(YSpecPlugin):
             selected_presets = []
         else:
             selected_presets = selected_presets[:]
+        if source_spec is None:
+            source_spec = {}
         if "presets" in source_spec:
-            for preset in source_spec["presets"]:
+            source_spec_presets = source_spec["presets"]
+            if isinstance(source_spec_presets, six.string_types):
+                source_spec_presets = [source_spec_presets]
+            for preset in source_spec_presets:
                 if preset in selected_presets:
                     selected_presets.remove(preset)
                 selected_presets += [preset]
@@ -106,6 +112,8 @@ class PresetsPlugin(YSpecPlugin):
                 if preset_key in indexed_levels:
                     # Make new dict of available_presets including only
                     # those applicable to the next level
+                    if preset_key not in spec:
+                        continue
                     for index in sorted([k for k in spec[preset_key]
                     if str(k).isdigit()]):
                         # Make new dict of available_presets including only

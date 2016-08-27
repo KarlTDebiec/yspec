@@ -15,7 +15,8 @@ from __future__ import absolute_import,division,print_function,unicode_literals
 if __name__ == "__main__":
     __package__ = str("yspec.plugins")
     import yspec.plugins
-from yspec.plugins import YSpecPlugin
+from .yspec import yaml_load, yaml_dump
+from . import YSpecPlugin
 ################################### CLASSES ###################################
 class WritePlugin(YSpecPlugin):
     """

@@ -19,7 +19,4 @@ if __name__ == "__main__":
 class YSpecPlugin(object):
     """
     """
-
-    def __call__(self, kwargs):
-        pass
-
+    pass

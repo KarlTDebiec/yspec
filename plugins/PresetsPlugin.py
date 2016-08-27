@@ -15,8 +15,8 @@ from __future__ import absolute_import,division,print_function,unicode_literals
 if __name__ == "__main__":
     __package__ = str("yspec.plugins")
     import yspec.plugins
+import ruamel.yaml as yaml
 import six
-from .. import yaml_load, yaml_dump
 from . import YSpecPlugin
 ################################### CLASSES ###################################
 class PresetsPlugin(YSpecPlugin):
@@ -137,7 +137,7 @@ class PresetsPlugin(YSpecPlugin):
                           for k, v in available_presets.items()
                           if preset_key in v}
                         if preset_key not in spec:
-                            spec[preset_key] = {}
+                            spec[preset_key] = yaml.comments.CommentedMap()
                         self.process_level(
                           spec[preset_key],
                           source_spec.get(preset_key, {}),

@@ -72,26 +72,18 @@ class TestYSpecConstructor(YSpecConstructor):
         """
         from yspec import yaml_load, yaml_dump
 
-        plugins = ["initialize", "defaults", "presets", "manual", "write"]
         plugins = ["initialize", "defaults", "presets", "manual"]
         self.source_spec = yaml_load(source_spec)
         spec = yaml.comments.CommentedMap()
 
-        print()
-
         for plugin_name in plugins:
-            print(plugin_name.upper())
-            if plugin_name in self.available_plugins:
-                plugin = self.available_plugins[plugin_name](
-                  indexed_levels=yaml_load(self.indexed_levels),
-                  **yaml_load(self.plugin_config.get(plugin_name, {})))
-                spec = plugin(spec, self.source_spec)
-            else:
-                raise Exception()
-            print(yaml_dump(spec))
+            plugin = self.available_plugins[plugin_name](
+              indexed_levels=yaml_load(self.indexed_levels),
+              **yaml_load(self.plugin_config.get(plugin_name, {})))
+            spec = plugin(spec, self.source_spec)
             with open ("test_{0}.yml".format(plugin_name), "w") as outfile:
                 outfile.write(yaml_dump(spec))
-            print()
+        print(yaml_dump(spec))
 
 #################################### MAIN #####################################
 def main():

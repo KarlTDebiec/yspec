@@ -10,22 +10,22 @@ level_1:
         preset_1_1.1:
             preset_1_1.1.1: preset_1_1.1.1_value
     2:
+        level_2:
+            0:
+                level_3:
+                    0:
+                        default_3.1: default_3.1_value
+                        preset_1_3.1: preset_1_3.1_value
+                        preset_2_3.1: preset_2_3.1_value
+                        manual_3.1: manual_3.1_value
+                default_2.1: default_2.1_value
+                preset_1_2.1: preset_1_2.1_value
+                preset_2_2.1: preset_2_2.1_value
+                presets: preset_2
         default_1.1:
             default_1.1.1: default_1.1.1_value
         preset_1_1.1:
             preset_1_1.1.1: preset_1_1.1.1_value
-        level_2:
-            0:
-                preset_1_2.1: preset_1_2.1_value
-                preset_2_2.1: preset_2_2.1_value
-                presets: preset_2
-                default_2.1: default_2.1_value
-                level_3:
-                    0:
-                        default_3.1: default_3.1_value
-                        manual_3.1: manual_3.1_value
-                        preset_1_3.1: preset_1_3.1_value
-                        preset_2_3.1: preset_2_3.1_value
         manual_1.2.1: manual_1.2.1_value
 default_0.0: default_0.0_value
 presets: [preset_1]

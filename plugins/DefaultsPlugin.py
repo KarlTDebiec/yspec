@@ -15,7 +15,7 @@ from __future__ import absolute_import,division,print_function,unicode_literals
 if __name__ == "__main__":
     __package__ = str("yspec.plugins")
     import yspec.plugins
-from .. import yaml_load, yaml_dump
+import ruamel.yaml as yaml
 from . import YSpecPlugin
 ################################### CLASSES ###################################
 class DefaultsPlugin(YSpecPlugin):
@@ -98,7 +98,7 @@ class DefaultsPlugin(YSpecPlugin):
                 # default_val is a dict; recurse
                 if isinstance(default_val, dict):
                     if default_key not in spec:
-                        spec[default_key] = {}
+                        spec[default_key] = yaml.comments.CommentedMap()
                     self.process_level(
                       spec[default_key],
                       source_spec.get(default_key, {}),

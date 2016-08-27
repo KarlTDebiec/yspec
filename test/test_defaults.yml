@@ -6,12 +6,12 @@ level_1:
         default_1.1:
             default_1.1.1: default_1.1.1_value
     2:
-        default_1.1:
-            default_1.1.1: default_1.1.1_value
         level_2:
             0:
-                default_2.1: default_2.1_value
                 level_3:
                     0:
                         default_3.1: default_3.1_value
+                default_2.1: default_2.1_value
+        default_1.1:
+            default_1.1.1: default_1.1.1_value
 default_0.0: default_0.0_value

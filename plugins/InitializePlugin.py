@@ -15,7 +15,7 @@ from __future__ import absolute_import,division,print_function,unicode_literals
 if __name__ == "__main__":
     __package__ = str("yspec.plugins")
     import yspec.plugins
-from .. import yaml_load, yaml_dump
+import ruamel.yaml as yaml
 from . import YSpecPlugin
 ################################### CLASSES ###################################
 class InitializePlugin(YSpecPlugin):
@@ -72,12 +72,12 @@ class InitializePlugin(YSpecPlugin):
             if source_spec.get(level) is None:
                 continue
             if level not in spec:
-                spec[level] = {}
+                spec[level] = yaml.comments.CommentedMap()
             # Loop over indexes
             for index in sorted([k for k in source_spec[level]
             if str(k).isdigit()]):
                 # Add dict in which to store lower levels
-                spec[level][index] = {}
+                spec[level][index] = yaml.comments.CommentedMap()
                 self.process_level(
                   spec[level][index],
                   source_spec[level][index],

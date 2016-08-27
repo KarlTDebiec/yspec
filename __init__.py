@@ -54,44 +54,6 @@ def sformat(text, **kwargs):
 
     return(re.sub(r"\s+", " ", text))
 
-def format_spec(spec, string_="", indent="    ", level=0, **kwargs):
-    """
-    Formats specification for print
-    """
-
-    if not isinstance(spec, dict):
-        raise Exception()
-    for key in sorted(spec.keys()):
-        value = spec[key]
-        string_ += "{0}{1}:".format(indent*level, key)
-        if isinstance(value, dict):
-            string_ += "\n"
-            string_ += format_spec(value, indent=indent, level=level+1,
-                         **kwargs)
-        elif isinstance(value, list):
-            list_string = ""
-            for item in value:
-                list_string += "  - "
-                if isinstance(item, dict):
-                    list_string += format_spec(item, indent=indent, level=1,
-                                     **kwargs).strip() + "\n"
-                else:
-                    list_string += "{0}\n".format(item)
-            string_ += "\n{0}".format(list_string).replace("\n",
-                         "\n{0}".format(indent*(level))).rstrip() + "\n"
-        elif isinstance(value, six.string_types):
-            if value == ":":
-                string_ += " \"{0}\"\n".format(value)
-            else:
-                string_ += " {0}\n".format(value)
-        # If it is a string, check for reserved symbols (e.g. ':') and wrap
-        # them in quotes
-        else:
-            string_ += " {0}\n".format(value)
-    if level == 0:
-        string_ = string_.rstrip()
-    return string_
-
 def yaml_load(input_):
     """
     Generates data structure from yaml input. 
@@ -132,6 +94,8 @@ def yaml_load(input_):
                   was intended as an infile it was not
                   found.)""".format(input_))
             return output
+    elif isinstance(input_, dict):
+        return input_
     elif input_ is None:
         warn("""yspec.yaml_load() has been asked to load input 'None', and will
           return an empty dictionary.""")
@@ -150,4 +114,4 @@ def yaml_dump(spec, **kwargs):
       indent = 4,
       block_seq_indent = 2)
     dump_kw.update(kwargs)
-    return yaml.dump(spec, **dump_kw)
+    return yaml.dump(spec, **dump_kw).strip()

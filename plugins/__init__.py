@@ -19,4 +19,35 @@ if __name__ == "__main__":
 class YSpecPlugin(object):
     """
     """
-    pass
+    name = ""
+
+    @classmethod
+    def construct_argparser(class_, parser, constructor=None, **kwargs):
+        """
+        Adds arguments to a nascent argument parser
+
+        Arguments:
+          parser (ArgumentParser): Parser to which arguments will be
+            added
+          constructor (YSpecConstructor): Constructor for which parser
+            is being built
+          kwargs (dict): Additional keyword arguments
+
+        Returns:
+          ArgumentParser: Argument parser
+        """
+        from .. import strfmt
+
+        if ((constructor is not None)
+        and (hasattr(constructor, "default_plugins"))
+        and (class_.name in constructor.default_plugins)):
+            parser.description += "  {0} (default: {1})\n".format(
+              class_.name, constructor.default_plugins.index(class_.name))
+        else:
+            parser.description += "  {0}\n".format(class_.name)
+        if hasattr(class_, "description"):
+            parser.description += strfmt(class_.description , width=79,
+              initial_indent="    ", subsequent_indent="    ") + "\n"
+
+        return parser
+

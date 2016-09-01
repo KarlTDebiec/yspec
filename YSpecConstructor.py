@@ -15,39 +15,43 @@ from __future__ import absolute_import,division,print_function,unicode_literals
 if __name__ == "__main__":
     __package__ = str("yspec")
     import yspec
-import ruamel.yaml as yaml
 ################################### CLASSES ###################################
 class YSpecConstructor(object):
     """
     """
+    from collections import OrderedDict
     from .plugins.InitializePlugin import InitializePlugin
     from .plugins.DefaultsPlugin import DefaultsPlugin
     from .plugins.PresetsPlugin import PresetsPlugin
     from .plugins.ManualPlugin import ManualPlugin
-    available_plugins = dict(
-      initialize = InitializePlugin,
-      defaults   = DefaultsPlugin,
-      presets    = PresetsPlugin,
-      manual     = ManualPlugin)
-    indexed_levels = None
-    plugin_config = None
+    available_plugins = OrderedDict([
+      ("initialize", InitializePlugin),
+      ("defaults", DefaultsPlugin),
+      ("presets", PresetsPlugin),
+      ("manual", ManualPlugin)])
+    default_plugins = ["initialize", "defaults", "presets", "manual"]
+    indexed_levels = {}
+    plugin_config = {}
 
-    def __init__(self, source_spec=None, **kwargs):
+    def __init__(self, source_spec=None, plugins=None, **kwargs):
         """
         """
-        from yspec import yaml_load, yaml_dump
+        from ruamel.yaml.comments import CommentedMap
+        from . import yaml_load, yaml_dump
 
-        plugins = ["initialize", "defaults", "presets", "manual"]
+        # Process argumnets
         self.source_spec = yaml_load(source_spec)
-        spec = yaml.comments.CommentedMap()
+        if plugins is None:
+            self.plugins = self.default_plugins
+
+        # Prepare spec
+        self.spec = CommentedMap()
         for plugin_name in plugins:
             plugin = self.available_plugins[plugin_name](
               indexed_levels=yaml_load(self.indexed_levels),
               **yaml_load(self.plugin_config.get(plugin_name, {})))
-            spec = plugin(spec, self.source_spec)
-            with open ("test_{0}.yml".format(plugin_name), "w") as outfile:
-                outfile.write(yaml_dump(spec))
-        self.spec = spec
+            self.spec = plugin(self.spec, self.source_spec)
+        print(yaml_dump(self.spec))
 
     @classmethod
     def main(class_):
@@ -57,14 +61,44 @@ class YSpecConstructor(object):
 
         # Prepare argument parser
         parser = argparse.ArgumentParser(
-          description = __doc__)
+          formatter_class = argparse.RawDescriptionHelpFormatter,
+          description     = __doc__,
+          epilog          = "")
+        verbosity = parser.add_mutually_exclusive_group()
+        verbosity.add_argument(
+          "-v",
+          "--verbose",
+          action   = "count",
+          default  = 1,
+          help     = "enable verbose output, may be specified more than once")
+        verbosity.add_argument(
+          "-q",
+          "--quiet",
+          action   = "store_const",
+          const    = 0,
+          default  = 1,
+          dest     = "verbose",
+          help     = "disable verbose output")
+
+        parser.add_argument(
+          "-d",
+          "--debug",
+          action   = "count",
+          default  = 0,
+          help     = "enable debug output, may be specified more than once")
+
+        if len(class_.available_plugins) > 0:
+            parser.description += "\n\nAvailable Plugins:\n\n"
+            for plugin in class_.available_plugins.values():
+                plugin.construct_argparser(parser, constructor=class_)
+
         parser.add_argument(
           "-spec",
           required = True,
           dest     = "source_spec",
           metavar  = "SPEC",
           type     = str,
-          help     = "input file from which to load specification")
+          help     = "input file from which to load source spec")
         parser.set_defaults(class_=class_)
 
         # Parse arguments

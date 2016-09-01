@@ -28,6 +28,7 @@ class ManualPlugin(YSpecPlugin):
         additional layer of indexes below them
     """
     name = "manual"
+    description = """Adds arguments from source spec to nascent spec"""
 
     def __init__(self, indexed_levels=None, **kwargs):
         """

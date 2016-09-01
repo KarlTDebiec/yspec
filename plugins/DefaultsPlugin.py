@@ -29,6 +29,36 @@ class DefaultsPlugin(YSpecPlugin):
       defaults (dict): Default arguments
     """
     name = "defaults"
+    description = """Adds default arguments based on structure observed
+      in nascent spec."""
+
+    @classmethod
+    def construct_argparser(class_, parser, **kwargs):
+        """
+        Adds arguments to a nascent argument parser
+
+        Arguments:
+          parser (ArgumentParser): Parser to which arguments will be
+            added
+          kwargs (dict): Additional keyword arguments
+
+        Returns:
+          ArgumentParser: Argument parser
+        """
+
+        super(DefaultsPlugin, class_).construct_argparser(parser=parser,
+          **kwargs)
+
+        arg_group = parser.add_argument_group("Settings for {0} plugin".format(
+          class_.name))
+        arg_group.add_argument(
+          "-defaults",
+          dest     = "defaults",
+          type     = str,
+          help     = """input file from which to load defaults (yaml
+                     format)""")
+
+        return parser
 
     def __init__(self, indexed_levels=None, defaults=None, **kwargs):
         """

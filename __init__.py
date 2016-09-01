@@ -42,17 +42,28 @@ def wrapprint(text, width=80, subsequent_indent="  ", **kwargs):
            **kwargs)
     print(tw.fill(re.sub(r"\s+", " ", text)))
 
-def sformat(text, **kwargs):
+def strfmt(text, width=None, subsequent_indent="  ", **kwargs):
     """
     Formats whitespace in text.
 
     Arguments:
       text (str): Text to format
+      width (int): Width of formatted text
+      subsequent_indent (str): Text with which to prepend lines after
+        the first
+      kwargs (dict): Additional keyword arguments passed to
+        :func:`TextWrapper`
     Returns:
-      str: *text* with all whitespace replaced with single spaces
+      str: *text* with whitespace formatted as directed
     """
+    from textwrap import TextWrapper
 
-    return(re.sub(r"\s+", " ", text))
+    if width is None:
+        return(re.sub(r"\s+", " ", text).strip())
+    else:
+        tw = TextWrapper(width=width, subsequent_indent=subsequent_indent,
+               **kwargs)
+        return(tw.fill(re.sub(r"\s+", " ", text).strip()))
 
 def yaml_load(input_):
     """

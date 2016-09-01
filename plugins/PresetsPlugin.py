@@ -32,6 +32,41 @@ class PresetsPlugin(YSpecPlugin):
         with each preset
     """
     name = "presets"
+    description = """Add selected group(s) of 'preset' arguments to nascent
+      spec."""
+
+    @classmethod
+    def construct_argparser(class_, parser, **kwargs):
+        """
+        Adds arguments to a nascent argument parser
+
+        Arguments:
+          parser (ArgumentParser): Parser to which arguments will be
+            added
+          kwargs (dict): Additional keyword arguments
+
+        Returns:
+          ArgumentParser: Argument parser
+        """
+
+        super(PresetsPlugin, class_).construct_argparser(parser=parser,
+          **kwargs)
+
+        arg_group = parser.add_argument_group("Settings for {0} plugin".format(
+          class_.name))
+        arg_group.add_argument(
+          "-available-presets",
+          dest     = "available_presets",
+          type     = str,
+          help     = """input file from which to load available presets (yaml
+                     format)""")
+        arg_group.add_argument(
+          "-selected-presets",
+          dest     = "selected_presets",
+          type     = str,
+          help     = "selected presets to apply to entire spec")
+
+        return parser
 
     def __init__(self, indexed_levels=None, available_presets=None,**kwargs):
         """

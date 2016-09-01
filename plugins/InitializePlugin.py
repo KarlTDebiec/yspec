@@ -28,6 +28,8 @@ class InitializePlugin(YSpecPlugin):
         additional layer of indexes below them
     """
     name = "initialize"
+    description = """Initializes indexed levels of nascent spec based on
+      structure present in source spec."""
 
     def __init__(self, indexed_levels=None, **kwargs):
         """

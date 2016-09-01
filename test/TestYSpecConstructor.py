@@ -66,13 +66,23 @@ class TestYSpecConstructor(YSpecConstructor):
                 level_3:
                   preset_2_3.1: preset_2_3.1_value""")
 
-    def __init__(self, **kwargs):
+    def __init__(self, source_spec=None, **kwargs):
         """
         """
-        from yspec import yaml_dump
+        from yspec import yaml_load, yaml_dump
 
-        super(TestYSpecConstructor, self).__init__(**kwargs)
-        print(yaml_dump(self.spec))
+        plugins = ["initialize", "defaults", "presets", "manual"]
+        self.source_spec = yaml_load(source_spec)
+        spec = yaml.comments.CommentedMap()
+        for plugin_name in plugins:
+            plugin = self.available_plugins[plugin_name](
+              indexed_levels=yaml_load(self.indexed_levels),
+              **yaml_load(self.plugin_config.get(plugin_name, {})))
+            spec = plugin(spec, self.source_spec)
+            with open ("test_{0}.yml".format(plugin_name), "w") as outfile:
+                outfile.write(yaml_dump(spec))
+        self.spec = spec
+        print(yaml_dump(spec))
 
 #################################### MAIN #####################################
 if __name__ == "__main__":

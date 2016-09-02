@@ -55,9 +55,14 @@ class YSpecConstructor(object):
               indexed_levels=yaml_load(self.indexed_levels),
               **yaml_load(self.plugin_config.get(plugin_name, {})))
             self.spec = plugin(self.spec, self.source_spec)
+            # Output intermediate spec
+            if verbose >= 3:
+                print("\nSpec after running {0} plugin:".format(plugin_name))
+                print(yaml_dump(self.spec))
 
         # Output spec
         if verbose >= 2:
+            print("\nFinal spec:")
             print(yaml_dump(self.spec))
 
     @classmethod

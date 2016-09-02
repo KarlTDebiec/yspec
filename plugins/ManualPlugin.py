@@ -80,10 +80,10 @@ class ManualPlugin(YSpecPlugin):
 
             # This level is indexed; loop over indexes as well
             if source_key in indexed_levels:
-                # Apply arguments from "all" before arguments from specific
-                # indexes
                 if source_spec.get(source_key) is None:
+                    # Not clear if this is the appropriate behavior here or not
                     continue
+                # Apply arguments from "all" first
                 if "all" in source_spec.get(source_key, {}):
                     for index in sorted([k for k in spec[source_key]
                                  if str(k).isdigit()]):
@@ -92,6 +92,7 @@ class ManualPlugin(YSpecPlugin):
                           source_spec[source_key]["all"],
                           indexed_levels.get(source_key, {}),
                           path=path+[source_key, index])
+                # Apply index-specific arguments second
                 for index in sorted([k for k in spec[source_key]
                              if str(k).isdigit()]):
                     self.process_level(

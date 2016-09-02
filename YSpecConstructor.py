@@ -35,11 +35,15 @@ class YSpecConstructor(object):
 
     def __init__(self, source_spec=None, plugins=None, **kwargs):
         """
+        Arguments:
+          verbose (int): Level of verbose output
+          kwargs (dict): Additional keyword arguments
         """
         from ruamel.yaml.comments import CommentedMap
         from . import yaml_load, yaml_dump
 
-        # Process argumnets
+        # Process arguments
+        verbose = kwargs.get("verbose", 1)
         self.source_spec = yaml_load(source_spec)
         if plugins is None:
             self.plugins = self.default_plugins
@@ -51,6 +55,10 @@ class YSpecConstructor(object):
               indexed_levels=yaml_load(self.indexed_levels),
               **yaml_load(self.plugin_config.get(plugin_name, {})))
             self.spec = plugin(self.spec, self.source_spec)
+
+        # Output spec
+        if verbose >= 2:
+            print(yaml_dump(self.spec))
 
     @classmethod
     def main(class_):

@@ -15,8 +15,8 @@ from __future__ import absolute_import,division,print_function,unicode_literals
 if __name__ == "__main__":
     __package__ = str("yspec.plugins")
     import yspec.plugins
-import ruamel.yaml as yaml
 import six
+import ruamel.yaml as yaml
 from . import YSpecPlugin
 ################################### CLASSES ###################################
 class PresetsPlugin(YSpecPlugin):

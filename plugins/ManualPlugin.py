@@ -9,6 +9,9 @@
 #   BSD license. See the LICENSE file for details.
 """
 Adds manually-set arguments to a nascent spec.
+
+.. todo:
+  - Add option to expand environment variables
 """
 ################################### MODULES ###################################
 from __future__ import absolute_import,division,print_function,unicode_literals
@@ -54,7 +57,7 @@ class ManualPlugin(YSpecPlugin):
             self.process_level(spec, source_spec, self.indexed_levels)
         return spec
 
-    def process_level(self, spec, source_spec, indexed_levels):
+    def process_level(self, spec, source_spec, indexed_levels, path=None):
         """
         Adds manually-set arguments to one level of spec hierarchy
 
@@ -62,12 +65,15 @@ class ManualPlugin(YSpecPlugin):
           spec (dict): Nascent spec at current level
           source_spec (dict): Source spec at current level
           indexed_levels (dict): Indexed levels within current level
+          path (list): List of keys leading to this level
         """
         from copy import deepcopy
 
         # Process arguments
         if indexed_levels is None:
             indexed_levels = {}
+        if path is None:
+            path = []
 
         # Loop over source argument keys and values at this level
         for source_key, source_val in source_spec.items():
@@ -80,27 +86,30 @@ class ManualPlugin(YSpecPlugin):
                     continue
                 if "all" in source_spec.get(source_key, {}):
                     for index in sorted([k for k in spec[source_key]
-                    if str(k).isdigit()]):
+                                 if str(k).isdigit()]):
                         self.process_level(
                           spec[source_key][index],
                           source_spec[source_key]["all"],
-                          indexed_levels.get(source_key, {}))
+                          indexed_levels.get(source_key, {}),
+                          path=path+[source_key, index])
                 for index in sorted([k for k in spec[source_key]
-                if str(k).isdigit()]):
+                             if str(k).isdigit()]):
                     self.process_level(
                       spec[source_key][index],
                       source_spec.get(source_key, {}).get(index, {}),
-                      indexed_levels.get(source_key, {}))
+                      indexed_levels.get(source_key, {}),
+                      path=path+[source_key, index])
             # This level is not indexed
             else:
                 # source_val is a dict; recurse
                 if isinstance(source_val, dict):
-                    if source_key not in spec:
+                    if source_key not in spec or spec[source_key] is None:
                         spec[source_key] = yaml.comments.CommentedMap()
                     self.process_level(
                       spec[source_key],
                       source_spec.get(source_key, {}),
-                      indexed_levels.get(source_key, {}))
+                      indexed_levels.get(source_key, {}),
+                      path=path+[source_key])
                 # source_val is singular; store and continue loop
                 else:
                     spec[source_key] = deepcopy(source_val)

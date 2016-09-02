@@ -46,12 +46,11 @@ class YSpecConstructor(object):
 
         # Prepare spec
         self.spec = CommentedMap()
-        for plugin_name in plugins:
+        for plugin_name in self.plugins:
             plugin = self.available_plugins[plugin_name](
               indexed_levels=yaml_load(self.indexed_levels),
               **yaml_load(self.plugin_config.get(plugin_name, {})))
             self.spec = plugin(self.spec, self.source_spec)
-        print(yaml_dump(self.spec))
 
     @classmethod
     def main(class_):

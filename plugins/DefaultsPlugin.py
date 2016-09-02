@@ -46,17 +46,17 @@ class DefaultsPlugin(YSpecPlugin):
           ArgumentParser: Argument parser
         """
 
-        super(DefaultsPlugin, class_).construct_argparser(parser=parser,
-          **kwargs)
-
-        arg_group = parser.add_argument_group("Settings for {0} plugin".format(
-          class_.name))
-        arg_group.add_argument(
-          "-defaults",
-          dest     = "defaults",
-          type     = str,
-          help     = """input file from which to load defaults (yaml
-                     format)""")
+#        super(DefaultsPlugin, class_).construct_argparser(parser=parser,
+#          **kwargs)
+#
+#        arg_group = parser.add_argument_group("Settings for {0} plugin".format(
+#          class_.name))
+#        arg_group.add_argument(
+#          "-defaults",
+#          dest     = "defaults",
+#          type     = str,
+#          help     = """input file from which to load defaults (yaml
+#                     format)""")
 
         return parser
 

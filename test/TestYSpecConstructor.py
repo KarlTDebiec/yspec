@@ -66,23 +66,27 @@ class TestYSpecConstructor(YSpecConstructor):
                 level_3:
                   preset_2_3.1: preset_2_3.1_value""")
 
-    def __init__(self, source_spec=None, **kwargs):
+    def __init__(self, source_spec=None, plugins=None, **kwargs):
         """
         """
+        from ruamel.yaml.comments import CommentedMap
         from yspec import yaml_load, yaml_dump
 
-        plugins = ["initialize", "defaults", "presets", "manual"]
+        # Process argumnets
         self.source_spec = yaml_load(source_spec)
-        spec = yaml.comments.CommentedMap()
-        for plugin_name in plugins:
+        if plugins is None:
+            self.plugins = self.default_plugins
+
+        # Prepare spec
+        self.spec = CommentedMap()
+        for plugin_name in self.plugins:
             plugin = self.available_plugins[plugin_name](
               indexed_levels=yaml_load(self.indexed_levels),
               **yaml_load(self.plugin_config.get(plugin_name, {})))
-            spec = plugin(spec, self.source_spec)
+            self.spec = plugin(self.spec, self.source_spec)
             with open ("test_{0}.yml".format(plugin_name), "w") as outfile:
-                outfile.write(yaml_dump(spec))
-        self.spec = spec
-        print(yaml_dump(spec))
+                outfile.write(yaml_dump(self.spec))
+        print(yaml_dump(self.spec))
 
 #################################### MAIN #####################################
 if __name__ == "__main__":

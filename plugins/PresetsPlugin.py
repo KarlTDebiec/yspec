@@ -9,6 +9,9 @@
 #   BSD license. See the LICENSE file for details.
 """
 Adds preset argument groups to a nascent spec
+
+.. todo:
+  - Implement extension and inheritance of presets
 """
 ################################### MODULES ###################################
 from __future__ import absolute_import,division,print_function,unicode_literals

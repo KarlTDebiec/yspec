@@ -80,20 +80,25 @@ class InitializePlugin(YSpecPlugin):
                 spec[level] = yaml.comments.CommentedMap()
             indexes = sorted(list(set([k for k in source_spec[level]
               if str(k).isdigit()])))
-            # Loop over indexes first
-            for index in indexes:
-                # Add dict in which to store lower levels
-                spec[level][index] = yaml.comments.CommentedMap()
-                self.process_level(
-                  spec[level][index],
-                  source_spec[level][index],
-                  indexed_levels.get(level, {}),
-                  path=path+[level, index])
-            # Descend into "all" now that indexes are present
+            # Apply "all" to all indexes
             if "all" in source_spec.get(level, {}):
-                for index in indexes:
+                all_indexes = sorted(list(set(indexes +
+                  [k for k in spec[level] if str(k).isdigit()])))
+                for index in all_indexes:
+                    if index not in spec[level]:
+                        spec[level][index] = yaml.comments.CommentedMap()
                     self.process_level(
                       spec[level][index],
                       source_spec[level]["all"],
                       indexed_levels.get(level, {}),
                       path=path+[level, index])
+            # Loop over specific indexes
+            for index in indexes:
+                # Add dict in which to store lower levels
+                if index not in spec[level]:
+                    spec[level][index] = yaml.comments.CommentedMap()
+                self.process_level(
+                  spec[level][index],
+                  source_spec[level].get(index, {}),
+                  indexed_levels.get(level, {}),
+                  path=path+[level, index])

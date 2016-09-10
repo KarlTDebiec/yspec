@@ -18,7 +18,6 @@ from __future__ import absolute_import,division,print_function,unicode_literals
 if __name__ == "__main__":
     __package__ = str("yspec.plugins")
     import yspec.plugins
-import ruamel.yaml as yaml
 from . import YSpecPlugin
 ################################### CLASSES ###################################
 class ManualPlugin(YSpecPlugin):
@@ -67,9 +66,10 @@ class ManualPlugin(YSpecPlugin):
           indexed_levels (dict): Indexed levels within current level
           path (list): List of keys leading to this level
         """
-        from copy import deepcopy
 
         # Process arguments
+        if source_spec is None:
+            return
         if indexed_levels is None:
             indexed_levels = {}
         if path is None:
@@ -105,7 +105,7 @@ class ManualPlugin(YSpecPlugin):
                 # source_val is a dict; recurse
                 if isinstance(source_val, dict):
                     if source_key not in spec or spec[source_key] is None:
-                        spec[source_key] = yaml.comments.CommentedMap()
+                        self.initialize(spec, source_key)
                     self.process_level(
                       spec[source_key],
                       source_spec.get(source_key, {}),
@@ -113,4 +113,4 @@ class ManualPlugin(YSpecPlugin):
                       path=path+[source_key])
                 # source_val is singular; store and continue loop
                 else:
-                    spec[source_key] = deepcopy(source_val)
+                    self.set(spec, source_key, source_val)

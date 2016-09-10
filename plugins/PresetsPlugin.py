@@ -9,9 +9,6 @@
 #   BSD license. See the LICENSE file for details.
 """
 Adds preset argument groups to a nascent spec
-
-.. todo:
-  - Implement extension and inheritance of presets
 """
 ################################### MODULES ###################################
 from __future__ import absolute_import,division,print_function,unicode_literals
@@ -87,12 +84,12 @@ class PresetsPlugin(YSpecPlugin):
         Adds preset argument groups to a nascent spec
 
         Arguments:
-          spec (dict): Nascent spec
+          spec (CommentedMap): Nascent spec
           source_spec (dict): Source spec to use to determine where
             defaults should be added
 
         Returns:
-          dict: Updated spec including default arguments
+          CommentedMap: Updated spec including preset arguments
         """
 
         if source_spec is not None:
@@ -106,7 +103,7 @@ class PresetsPlugin(YSpecPlugin):
         Adds selected preset arguments to one level of spec hierarchy
 
         Arguments:
-          spec (dict): Nascent spec at current level
+          spec (CommentedMap): Nascent spec at current level
           source_spec (dict): Source spec at current level
           indexed_levels (dict): Indexed levels below current level
           available_presets (dict): Available presets within current

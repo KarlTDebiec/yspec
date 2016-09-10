@@ -43,12 +43,12 @@ class InitializePlugin(YSpecPlugin):
         Initializes a nascent spec.
 
         Arguments:
-          spec (dict): Nascent spec (typically {} at this time)
+          spec (CommentedMap): Nascent spec (typically empty at this time)
           source_spec (dict): Source spec to use to determine initial
             structure
 
         Returns:
-          dict: Initialized spec
+          CommentedMap: Initialized spec
         """
         if source_spec is not None:
             self.process_level(spec, source_spec, self.indexed_levels)
@@ -56,10 +56,10 @@ class InitializePlugin(YSpecPlugin):
 
     def process_level(self, spec, source_spec, indexed_levels, path=None):
         """
-        Initialize one level of spec hierarchy
+        Initializes one level of spec hierarchy
 
         Arguments:
-          spec (dict): Nascent spec at current level
+          spec (CommentedMap): Nascent spec at current level
           source_spec (dict): Source spec at current level
           indexed_levels (dict): Indexed levels below current level
           path (list): List of keys leading to this level

@@ -15,7 +15,6 @@ from __future__ import absolute_import,division,print_function,unicode_literals
 if __name__ == "__main__":
     __package__ = str("yspec.plugins")
     import yspec.plugins
-import ruamel.yaml as yaml
 from . import YSpecPlugin
 ################################### CLASSES ###################################
 class DefaultsPlugin(YSpecPlugin):
@@ -46,9 +45,9 @@ class DefaultsPlugin(YSpecPlugin):
           ArgumentParser: Argument parser
         """
 
-#        super(DefaultsPlugin, class_).construct_argparser(parser=parser,
-#          **kwargs)
-#
+        super(DefaultsPlugin, class_).construct_argparser(parser=parser,
+          **kwargs)
+
 #        arg_group = parser.add_argument_group("Settings for {0} plugin".format(
 #          class_.name))
 #        arg_group.add_argument(
@@ -77,12 +76,12 @@ class DefaultsPlugin(YSpecPlugin):
         Adds default arguments to a nascent spec.
 
         Arguments:
-          spec (dict): Nascent spec
+          spec (CommentedMap): Nascent spec
           source_spec (dict): Source spec to use to determine where
             defaults should be added
 
         Returns:
-          dict: Updated spec including default arguments
+          CommentedMap: Updated spec including default arguments
         """
         if source_spec is not None:
             self.process_level(spec, source_spec, self.indexed_levels,
@@ -94,7 +93,7 @@ class DefaultsPlugin(YSpecPlugin):
         Adds default arguments to one level of spec hierarchy
 
         Arguments:
-          spec (dict): Nascent spec at current level
+          spec (CommentedMap): Nascent spec at current level
           source_spec (dict): Source spec at current level
           indexed_levels (dict): Indexed levels within current level
           defaults (dict): Defaults within current level

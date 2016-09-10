@@ -12,6 +12,7 @@ Adds manually-set arguments to a nascent spec.
 
 .. todo:
   - Add option to expand environment variables
+  - Add option to keep slices
 """
 ################################### MODULES ###################################
 from __future__ import absolute_import,division,print_function,unicode_literals
@@ -45,12 +46,12 @@ class ManualPlugin(YSpecPlugin):
         Adds manually-set arguments to a nascent spec.
 
         Arguments:
-          spec (dict): Nascent spec
+          spec (CommentedMap): Nascent spec
           source_spec (dict): Source spec used as source of manual
             arguments
 
         Returns:
-          dict: Updated spec including maually-set arguments
+          CommentedMap: Updated spec including maually-set arguments
         """
         if source_spec is not None:
             self.process_level(spec, source_spec, self.indexed_levels)
@@ -61,7 +62,7 @@ class ManualPlugin(YSpecPlugin):
         Adds manually-set arguments to one level of spec hierarchy
 
         Arguments:
-          spec (dict): Nascent spec at current level
+          spec (CommentedMap): Nascent spec at current level
           source_spec (dict): Source spec at current level
           indexed_levels (dict): Indexed levels within current level
           path (list): List of keys leading to this level

@@ -77,8 +77,8 @@ class InitializePlugin(YSpecPlugin):
                 continue
             if level not in spec:
                 self.initialize(spec, level)
-            indexes = sorted(list(set([k for k in source_spec[level]
-              if str(k).isdigit()])))
+            indexes = sorted([k for k in source_spec[level]
+                        if str(k).isdigit()])
             # Apply "all" to all indexes
             if "all" in source_spec.get(level, {}):
                 all_indexes = sorted(list(set(indexes +

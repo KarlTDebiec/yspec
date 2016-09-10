@@ -121,8 +121,8 @@ def yaml_dump(spec, **kwargs):
     """
     """
     dump_kw = dict(
-      Dumper = yaml.RoundTripDumper,
-      indent = 4,
-      block_seq_indent = 2)
+      Dumper           = yaml.RoundTripDumper,
+      block_seq_indent = 2,
+      indent           = 4)
     dump_kw.update(kwargs)
     return yaml.dump(spec, **dump_kw).strip()

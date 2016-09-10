@@ -15,7 +15,6 @@ from __future__ import absolute_import,division,print_function,unicode_literals
 if __name__ == "__main__":
     __package__ = str("yspec.plugins")
     import yspec.plugins
-from ruamel.yaml.comments import CommentedMap
 ################################### CLASSES ###################################
 class YSpecPlugin(object):
     """
@@ -26,13 +25,24 @@ class YSpecPlugin(object):
     def initialize(self, destination, key, comment=None):
         """
         """
+        from ruamel.yaml.comments import CommentedMap
+
         destination[key] = CommentedMap()
         if self.annotate:
             if comment is None:
-                destination[key].yaml_add_eol_comment(self.name,
-                column=80)
-            else:
-                destination[key].yaml_add_eol_comment(comment)
+                comment = self.name
+            destination[key].yaml_add_eol_comment(self.name, column=80)
+
+    def set(self, destination, key, value, comment=None):
+        """
+        """
+        from copy import deepcopy
+
+        destination[key] = deepcopy(value)
+        if self.annotate:
+            if comment is None:
+                comment = self.name
+            destination.yaml_add_eol_comment(self.name, key, column=80)
 
     @classmethod
     def construct_argparser(class_, parser, constructor=None, **kwargs):

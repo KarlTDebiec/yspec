@@ -18,8 +18,6 @@ from __future__ import absolute_import,division,print_function,unicode_literals
 if __name__ == "__main__":
     __package__ = str("yspec.plugins")
     import yspec.plugins
-import six
-import ruamel.yaml as yaml
 from . import YSpecPlugin
 ################################### CLASSES ###################################
 class PresetsPlugin(YSpecPlugin):
@@ -115,7 +113,7 @@ class PresetsPlugin(YSpecPlugin):
             level
           selected_presets (list): Presets selected above current level
         """
-        from copy import deepcopy
+        import six
 
         # Process arguments
         if available_presets is None:
@@ -175,7 +173,7 @@ class PresetsPlugin(YSpecPlugin):
                           for k, v in available_presets.items()
                           if preset_key in v}
                         if preset_key not in spec:
-                            spec[preset_key] = yaml.comments.CommentedMap()
+                            self.initialize(spec, preset_key)
                         self.process_level(
                           spec[preset_key],
                           source_spec.get(preset_key, {}),
@@ -184,4 +182,5 @@ class PresetsPlugin(YSpecPlugin):
                           selected_presets)
                     # preset_val is singular; store and continue loop
                     else:
-                        spec[preset_key] = deepcopy(preset_val)
+                        self.set(spec, preset_key, preset_val,
+                          comment="{0}:{1}".format(self.name, selected_preset))

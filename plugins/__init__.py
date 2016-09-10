@@ -31,7 +31,7 @@ class YSpecPlugin(object):
         if self.annotate:
             if comment is None:
                 comment = self.name
-            destination[key].yaml_add_eol_comment(self.name, column=80)
+            destination[key].yaml_add_eol_comment(comment, column=80)
 
     def set(self, destination, key, value, comment=None):
         """
@@ -42,7 +42,7 @@ class YSpecPlugin(object):
         if self.annotate:
             if comment is None:
                 comment = self.name
-            destination.yaml_add_eol_comment(self.name, key, column=80)
+            destination.yaml_add_eol_comment(comment, key, column=80)
 
     @classmethod
     def construct_argparser(class_, parser, constructor=None, **kwargs):
@@ -61,9 +61,9 @@ class YSpecPlugin(object):
         """
         from .. import strfmt
 
-        if ((constructor is not None)
-        and (hasattr(constructor, "default_plugins"))
-        and (class_.name in constructor.default_plugins)):
+        if (constructor is not None
+        and hasattr(constructor, "default_plugins")
+        and class_.name in constructor.default_plugins):
             parser.description += "  {0} (default: {1})\n".format(
               class_.name, constructor.default_plugins.index(class_.name))
         else:

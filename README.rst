@@ -9,7 +9,7 @@ Dependencies
 
 YSpec supports Python 2.7, and requires the following packages:
 
-- `ruayaml <https://bitbucket.org/ruamel/yaml>`_
+- `ruamel <https://bitbucket.org/ruamel/yaml>`_
 - `six <https://bitbucket.org/gutworth/six>`_
 
 Authorship

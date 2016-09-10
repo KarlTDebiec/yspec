@@ -12,6 +12,10 @@ YSpec supports Python 2.7, and requires the following packages:
 - `ruamel <https://bitbucket.org/ruamel/yaml>`_
 - `six <https://bitbucket.org/gutworth/six>`_
 
+Additional option features require the following packages:
+
+- `termcolor <https://pypi.python.org/pypi/termcolor>`_
+
 Authorship
 ----------
 

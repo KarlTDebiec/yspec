@@ -117,7 +117,7 @@ def yaml_load(input_):
           string containing yaml-formatted data, or a
           dict.""".format(input.__class__.__name__))
 
-def yaml_dump(spec, **kwargs):
+def yaml_dump(spec, colored=True, **kwargs):
     """
     """
     dump_kw = dict(
@@ -125,4 +125,29 @@ def yaml_dump(spec, **kwargs):
       block_seq_indent = 2,
       indent           = 4)
     dump_kw.update(kwargs)
-    return yaml.dump(spec, **dump_kw).strip()
+    output = yaml.dump(spec, **dump_kw).strip()
+    if colored:
+        import re
+        from termcolor import colored
+
+        colored_output = ""
+        available_colors = ["red", "green", "yellow", "blue", "magenta", "cyan"]
+        selected_colors = {}
+        for line in output.split("\n"):
+            re_comment = re.compile(
+              "^(?P<line>.*)#[\s]*?(?P<plugin>[^\s:]+):?(?P<subplugin>[^\s]+)?$")
+            match = re.match(re_comment, line)
+            if match:
+                plugin    = match.groupdict()["plugin"]
+                subplugin = match.groupdict()["subplugin"]
+                if plugin not in selected_colors:
+                    selected_colors[plugin] = available_colors.pop(0)
+                if subplugin is not None:
+                    pass
+                color = selected_colors[plugin]
+                colored_output += colored(line, color) + "\n"
+            else:
+                colored_output += colored(line, "white") + "\n"
+        return colored_output
+    else:
+        return output

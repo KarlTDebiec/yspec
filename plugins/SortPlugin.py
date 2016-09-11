@@ -61,10 +61,10 @@ class SortPlugin(YSpecPlugin):
         source_spec = spec
         spec = CommentedMap()
 
-        self.process_level(spec, source_spec)
+        self.process_level(spec, source_spec, self.indexed_levels)
         return spec
 
-    def process_level(self, spec, source_spec):
+    def process_level(self, spec, source_spec, indexed_levels):
         """
         Sorts one level of spec hierarchy
 
@@ -74,13 +74,18 @@ class SortPlugin(YSpecPlugin):
         """
 
         # Process arguments
+        if indexed_levels is None:
+            indexed_levels = {}
         if source_spec is None:
             source_spec = {}
 
         # Loop over source argument keys and values at this level
         source_keys  = sorted([k for k in source_spec if k in self.header])
         source_keys += sorted([k for k in source_spec
-                        if k not in self.header and k not in self.footer])
+                        if  k not in self.header
+                        and k not in indexed_levels
+                        and k not in self.footer])
+        source_keys += sorted([k for k in source_spec if k in indexed_levels])
         source_keys += sorted([k for k in source_spec if k in self.footer])
         for source_key in source_keys:
             source_val = source_spec[source_key]
@@ -89,9 +94,16 @@ class SortPlugin(YSpecPlugin):
                 if source_key not in spec:
                     self.initialize(spec, source_key,
                       comment=source_val._yaml_comment.comment[0].value)
-                self.process_level(
-                  spec[source_key],
-                  source_spec.get(source_key, {}))
+                if source_key in indexed_levels:
+                    self.process_level(
+                      spec[source_key],
+                      source_spec.get(source_key, {}),
+                      indexed_levels.get(source_key, {}))
+                else:
+                    self.process_level(
+                      spec[source_key],
+                      source_spec.get(source_key, {}),
+                      indexed_levels)
             # source_val is singular; store and continue loop
             else:
                 self.set(spec, source_key, source_val,

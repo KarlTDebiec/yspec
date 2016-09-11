@@ -22,12 +22,15 @@ class TestYSpecConstructor(YSpecConstructor):
     from yspec.plugins.DefaultsPlugin import DefaultsPlugin
     from yspec.plugins.PresetsPlugin import PresetsPlugin
     from yspec.plugins.ManualPlugin import ManualPlugin
+    from yspec.plugins.SortPlugin import SortPlugin
 
     available_plugins = dict(
       initialize = InitializePlugin,
       defaults   = DefaultsPlugin,
       presets    = PresetsPlugin,
-      manual     = ManualPlugin)
+      manual     = ManualPlugin,
+      sort       = SortPlugin)
+    default_plugins = ["initialize", "defaults", "presets", "manual", "sort"]
     indexed_levels = """
       level_1:
           level_2:
@@ -65,28 +68,6 @@ class TestYSpecConstructor(YSpecConstructor):
                 preset_2_2.1: preset_2_2.1_value
                 level_3:
                   preset_2_3.1: preset_2_3.1_value""")
-
-    def __init__(self, source_spec=None, plugins=None, **kwargs):
-        """
-        """
-        from ruamel.yaml.comments import CommentedMap
-        from yspec import yaml_load, yaml_dump
-
-        # Process argumnets
-        self.source_spec = yaml_load(source_spec)
-        if plugins is None:
-            self.plugins = self.default_plugins
-
-        # Prepare spec
-        self.spec = CommentedMap()
-        for plugin_name in self.plugins:
-            plugin = self.available_plugins[plugin_name](
-              indexed_levels=yaml_load(self.indexed_levels),
-              **yaml_load(self.plugin_config.get(plugin_name, {})))
-            self.spec = plugin(self.spec, self.source_spec)
-            with open ("test_{0}.yml".format(plugin_name), "w") as outfile:
-                outfile.write(yaml_dump(self.spec))
-        print(yaml_dump(self.spec))
 
 #################################### MAIN #####################################
 if __name__ == "__main__":

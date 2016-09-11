@@ -29,10 +29,22 @@ class SortPlugin(YSpecPlugin):
     name = "sort"
     description = """Sorts a nascent spec."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, indexed_levels=None, header=None, footer=None,
+        **kwargs):
         """
         """
-        pass
+        if indexed_levels is not None:
+            self.indexed_levels = indexed_levels
+        else:
+            self.indexed_levels = {}
+        if header is not None:
+            self.header = header
+        else:
+            self.header = []
+        if footer is not None:
+            self.footer = footer
+        else:
+            self.footer = []
 
     def __call__(self, spec, source_spec, **kwargs):
         """
@@ -66,7 +78,11 @@ class SortPlugin(YSpecPlugin):
             source_spec = {}
 
         # Loop over source argument keys and values at this level
-        for source_key in sorted(source_spec):
+        source_keys  = sorted([k for k in source_spec if k in self.header])
+        source_keys += sorted([k for k in source_spec
+                        if k not in self.header and k not in self.footer])
+        source_keys += sorted([k for k in source_spec if k in self.footer])
+        for source_key in source_keys:
             source_val = source_spec[source_key]
             # source_val is a dict; recurse
             if isinstance(source_val, dict):

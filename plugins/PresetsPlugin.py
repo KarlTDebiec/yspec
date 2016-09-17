@@ -30,18 +30,16 @@ class PresetsPlugin(YSpecPlugin):
         with each preset
     """
     name = "presets"
-    description = """add selected 'preset' arguments to nascent spec"""
+    description = """adds selected 'preset' arguments to nascent spec"""
 
     @classmethod
-    def construct_argparser(class_, parser, constructor, **kwargs):
+    def add_arguments(class_, parser, **kwargs):
         """
         Adds arguments to a nascent argument parser
 
         Arguments:
           parser (ArgumentParser): Parser to which arguments will be
             added
-          constructor (YSpecConstructor): Constructor for which parser
-            is being built
           kwargs (dict): Additional keyword arguments
 
         Returns:
@@ -50,70 +48,73 @@ class PresetsPlugin(YSpecPlugin):
         from collections import OrderedDict
         from textwrap import wrap
 
-        super(PresetsPlugin, class_).construct_argparser(parser=parser,
-          constructor=constructor, **kwargs)
-
-        arg_group = parser.add_argument_group("settings for {0} plugin".format(
-          class_.name))
-        arg_group.add_argument(
+        # Arguments unique to this plugin
+        arg_group = parser.add_argument_group(
+          "arguments for {0} plugin".format(class_.name))
+        class_.add_argument(arg_group,
           "-presets",
           dest     = "selected_presets",
           type     = str,
           nargs    = "*",
           metavar  = "PRESET",
-          help     = "selected presets to apply to entire spec")
+          help     = "!FULL: selected presets to apply to entire spec")
 
         # Format preset help text and extension pattern
-        description = "available presets:\n"
-        available_presets = class_.initialize_available_presets(constructor)
-        base_presets = OrderedDict(sorted([(k, v)
-          for k, v in available_presets.items() if "_extends" not in v]))
-        for preset_name, preset in base_presets.items():
-            extensions = sorted([(k, v)
-                           for k, v in available_presets.items()
-                           if v.get("_extends") == preset_name])
-            symbol = "│" if len(extensions) > 0 else " "
-            if "_help" in preset:
-                wrapped = wrap(preset["_help"], 54)
-                if len(preset_name) > 20:
-                    description += "  {0}\n".format(preset_name)
-                    description += "  {0} {1:19}".format(symbol, " ")
-                else:
-                    description += "  {0:18s}".format(preset_name)
-                description += "{0}\n".format(wrapped.pop(0))
-                for line in wrapped:
-                    description += "   {0} {1:19}{2}\n".format(symbol,
-                              " ", line)
-            else:
-                description += "  {0}\n".format(preset_name)
-            for i, (extension_name, extension) in enumerate(extensions,
-                                                    1):
-                symbol = "└" if i == len(extensions) else "├"
-                if "_help" in extension:
-                    wrapped = wrap(extension["_help"], 51)
-                    if len(extension_name) > 16:
-                        description += "   {0} {1}\n".format(symbol,
-                                    extension_name)
-                        symbol = "│" if i != len(extensions) else " "
-                        description += "   {0} {1:15}".format(symbol, " ")
+        available_presets = class_.initialize_available_presets(**kwargs)
+        if len(available_presets) == 0:
+            description = "no presets available\n"
+        else:
+            description = "available presets:\n"
+            base_presets = OrderedDict(sorted([(k, v)
+              for k, v in available_presets.items() if "_extends" not in v]))
+            for preset_name, preset in base_presets.items():
+                extensions = sorted([(k, v)
+                               for k, v in available_presets.items()
+                               if v.get("_extends") == preset_name])
+                symbol = "│" if len(extensions) > 0 else " "
+                if "_help" in preset:
+                    wrapped = wrap(preset["_help"], 54)
+                    if len(preset_name) > 20:
+                        description += "  {0}\n".format(preset_name)
+                        description += "  {0} {1:19}".format(symbol, " ")
                     else:
-                        description += "   {0} {1:15}".format(symbol,
-                                    extension_name)
+                        description += "  {0:18s}".format(preset_name)
                     description += "{0}\n".format(wrapped.pop(0))
-                    symbol = "│" if i != len(extensions) else " "
                     for line in wrapped:
                         description += "   {0} {1:19}{2}\n".format(symbol,
                                   " ", line)
                 else:
-                    description += " {0} {1}\n".format(symbol,
-                                extension_name)
+                    description += "  {0}\n".format(preset_name)
+                for i, (extension_name, extension) in enumerate(extensions,
+                                                        1):
+                    symbol = "└" if i == len(extensions) else "├"
+                    if "_help" in extension:
+                        wrapped = wrap(extension["_help"], 51)
+                        if len(extension_name) > 16:
+                            description += "   {0} {1}\n".format(symbol,
+                                        extension_name)
+                            symbol = "│" if i != len(extensions) else " "
+                            description += "   {0} {1:15}".format(symbol, " ")
+                        else:
+                            description += "   {0} {1:15}".format(symbol,
+                                        extension_name)
+                        description += "{0}\n".format(wrapped.pop(0))
+                        symbol = "│" if i != len(extensions) else " "
+                        for line in wrapped:
+                            description += "   {0} {1:19}{2}\n".format(symbol,
+                                      " ", line)
+                    else:
+                        description += " {0} {1}\n".format(symbol,
+                                    extension_name)
         arg_group.description = description
+
+        # Arguments inherited from superclass
+        super(PresetsPlugin, class_).add_arguments(parser=parser, **kwargs)
 
         return parser
 
     @classmethod
-    def initialize_available_presets(class_, constructor,
-        available_presets=None, **kwargs):
+    def initialize_available_presets(class_, **kwargs):
         """
         Initializes available presets, carrying out inheritance and
         extension
@@ -123,34 +124,26 @@ class PresetsPlugin(YSpecPlugin):
             is being built
 
         returns:
-           dict: available presets, after inheritance and extension
+           dict: Available presets, after inheritance and extension
         """
         from inspect import getmro
-        from .. import merge_dicts, yaml_load
+        from .. import merge_dicts
 
-        if available_presets is not None:
-            available_presets = yaml_load(available_presets)
-        elif (hasattr(constructor, "plugin_config")
-        and "presets" in constructor.plugin_config
-        and "available_presets" in constructor.plugin_config["presets"]):
-            available_presets = yaml_load(
-              constructor.plugin_config["presets"])["available_presets"]
-        else:
-            available_presets = {}
+        constructor = kwargs.get("constructor", None)
+        available_presets = class_.get_config("available_presets", **kwargs)
+        if available_presets is None:
+            return {}
 
         # Cannot figure out how to use super() here
         if isinstance(constructor, type):
             mro = getmro(constructor)
-            if len(mro) >= 2:
-                super_presets = class_.initialize_available_presets(mro[1])
-            else:
-                super_presets = {}
         else:
             mro = getmro(type(constructor))
-            if len(mro) >= 2:
-                super_presets = class_.initialize_available_presets(mro[1])
-            else:
-                super_presets = {}
+        if len(mro) >= 2:
+            super_presets = class_.initialize_available_presets(
+              constructor=mro[1])
+        else:
+            super_presets = {}
 
         for name, preset in available_presets.items():
             if "_inherits" in preset:
@@ -168,22 +161,12 @@ class PresetsPlugin(YSpecPlugin):
 
         return available_presets
 
-    def __init__(self, indexed_levels=None,
-        constructor=None, **kwargs):
+    def __init__(self, **kwargs):
         """
         """
-        from .. import yaml_load
-
-        if indexed_levels is not None:
-            self.indexed_levels = indexed_levels
-        elif (constructor is not None
-        and hasattr(constructor, "indexed_levels")):
-            self.indexed_levels = yaml_load(constructor.indexed_levels)
-        else:
-            self.indexed_levels = {}
-
-        self.available_presets = self.initialize_available_presets(
-          constructor=constructor, **kwargs)
+        self.indexed_levels = self.get_config("indexed_levels",
+          attr_of_constructor=True, **kwargs)
+        self.available_presets = self.initialize_available_presets(**kwargs)
 
     def __call__(self, spec, source_spec=None, **kwargs):
         """

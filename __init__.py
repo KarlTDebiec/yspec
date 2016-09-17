@@ -199,3 +199,106 @@ def yaml_dump(spec, colored=True, **kwargs):
         return colored_output
     else:
         return output
+################################### CLASSES ###################################
+class YSpecCLTool(object):
+    """
+    Base class for YSpec command line tools; includes convenience functions
+    """
+
+    @staticmethod
+    def add_argument(parser, *args, **kwargs):
+        """
+        Adds an argument to a nascent argument parser; if an argument
+        with the same name is not already present
+
+        Arguments:
+          parser (ArgumentParser): Nascent argument parser
+        """
+        import argparse
+
+        try:
+            parser.add_argument(*args, **kwargs)
+        except argparse.ArgumentError:
+            pass
+
+    @staticmethod
+    def add_mutually_exclusive_argument_group(parser, name):
+        """
+        Adds a mutually exclusive argument group to a nascent argument
+        parser, or returns pre-existing group
+
+        Unfortunately; manually maintaining a dictionary of
+        mutually-exclusive argument groups appears to be the best way to
+        avoid the failure that results when arguments with the same name
+        are added to multiple mutually-exclusive groups. When an
+        argument is added to a mutually-exclusive group, no checking is
+        performed to ensure that an argument with the same name is not
+        present in another mutually-exclusive groups. The conflict is
+        not caught until parse_args() is called, making it impossible to
+        use try/except to add arguments only if they are not already
+        present in the parser, as may be done for arguments that are not
+        part of a mutually-exclusive group. Furthermore,
+        add_mutually_exclusive_group() does not support setting a
+        'title' or 'description' to the group, that might make it
+        feasible to track at least which groups of arguments have been
+        previously added. This issue may be partially resolved by naming
+        the groups and tracking them manually in a dictionary attribute
+        of the parser.
+
+        Arguments:
+          parser (ArgumentParser): Nascent argument parser
+          name (str): Name of mutually exclusive group
+
+        Returns:
+          ?: Mutually exclusive group, either new or pre-existing
+        """
+        if not hasattr(parser, "_mutually_exclusive_group_dict"):
+            parser._mutually_exclusive_group_dict = {}
+        group = parser._mutually_exclusive_group_dict.get(name,
+          parser.add_mutually_exclusive_group())
+        return group
+
+    @classmethod
+    def get_parser(class_, parser_or_subparsers=None, name=None,
+        description=None, **kwargs):
+        """
+
+        Arguments:
+          parser_or_subparsers (ArgumentParser, _SubParsersAction,
+            optional): If ArgumentParser, existing parser to which
+            arguments will be added; if _SubParsersAction, collection of
+            subparsers to which a new argument parser will be added; if
+            None, a new argument parser will be generated
+          name (str, optional): Name of spec constructor
+          description (str, optional): Description of spec constructor
+          kwargs (dict): Additional keyword arguments
+
+        Returns:
+          ArgumentParser: Argument parser or subparser
+        """
+        import argparse
+        from . import strfmt
+
+        if name is None:
+            if hasattr(class_, "name"):
+                name = class_.name
+            else:
+                name = class_.__name__
+        if description is None:
+            if hasattr(class_, "description"):
+                description = class_.description
+            else:
+                description = strfmt(class_.__doc__.split("\n\n")[0]) + "\n"
+        if isinstance(parser_or_subparsers, argparse.ArgumentParser):
+            parser = parser_or_subparsers
+        elif isinstance(parser_or_subparsers, argparse._SubParsersAction):
+            parser = parser_or_subparsers.add_parser(
+              name        = name,
+              description = description,
+              help        = description)
+        elif parser_or_subparsers is None:
+            parser = argparse.ArgumentParser(
+              formatter_class = argparse.RawDescriptionHelpFormatter,
+              description = description)
+
+        return parser

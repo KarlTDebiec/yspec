@@ -29,18 +29,11 @@ class ManualPlugin(YSpecPlugin):
     name = "manual"
     description = """copies arguments to nascent spec from source spec"""
 
-    def __init__(self, indexed_levels=None, constructor=None, **kwargs):
+    def __init__(self, **kwargs):
         """
         """
-        from .. import yaml_load
-
-        if indexed_levels is not None:
-            self.indexed_levels = indexed_levels
-        elif (constructor is not None
-        and hasattr(constructor, "indexed_levels")):
-            self.indexed_levels = yaml_load(constructor.indexed_levels)
-        else:
-            self.indexed_levels = {}
+        self.indexed_levels = self.get_config("indexed_levels",
+          attr_of_constructor=True, **kwargs)
 
     def __call__(self, spec, source_spec=None, **kwargs):
         """

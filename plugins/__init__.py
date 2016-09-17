@@ -15,45 +15,25 @@ from __future__ import absolute_import,division,print_function,unicode_literals
 if __name__ == "__main__":
     __package__ = str("yspec.plugins")
     import yspec.plugins
+from .. import YSpecCLTool
 ################################### CLASSES ###################################
-class YSpecPlugin(object):
+class YSpecPlugin(YSpecCLTool):
     """
+    Base class for YSpec plugins
     """
-    name = ""
     annotate = True
 
-    def initialize(self, destination, key, comment=None):
-        """
-        """
-        from ruamel.yaml.comments import CommentedMap
-
-        destination[key] = CommentedMap()
-        if self.annotate:
-            if comment is None:
-                comment = self.name
-            destination[key].yaml_add_eol_comment(comment, column=80)
-
-    def set(self, destination, key, value, comment=None):
-        """
-        """
-        from copy import deepcopy
-
-        destination[key] = deepcopy(value)
-        if self.annotate:
-            if comment is None:
-                comment = self.name
-            destination.yaml_add_eol_comment(comment, key, column=80)
-
     @classmethod
-    def construct_argparser(class_, parser, constructor=None, **kwargs):
+    def add_arguments(class_, parser, name=None, description=None,
+        **kwargs):
         """
-        Adds arguments to a nascent argument parser
+        Adds name and description of plugin to a nascent argument parser
 
         Arguments:
           parser (ArgumentParser): Parser to which arguments will be
             added
-          constructor (YSpecConstructor): Constructor for which parser
-            is being built
+          name (str): Name of plugin
+          description (str): Description of plugin
           kwargs (dict): Additional keyword arguments
 
         Returns:
@@ -61,10 +41,76 @@ class YSpecPlugin(object):
         """
         from .. import strfmt
 
-        parser.description += "  {0}\n".format(class_.name)
-        if hasattr(class_, "description"):
-            parser.description += strfmt(class_.description , width=79,
-              initial_indent="    ", subsequent_indent="    ") + "\n"
+        # Process arguments
+        if name is None:
+            if hasattr(class_, "name"):
+                name = class_.name
+            else:
+                name = class_.__name__
+        if description is None:
+            if hasattr(class_, "description"):
+                description = class_.description
+            else:
+                description = class_.__doc__
+
+        # Add description of this plugin
+        parser.description += "  {0}\n".format(name) + strfmt(description ,
+          width=79, initial_indent="    ", subsequent_indent="    ") + "\n"
 
         return parser
 
+    @classmethod
+    def get_config(class_, attr, constructor=None, attr_of_constructor=False,
+        **kwargs):
+        """
+        """
+        from .. import yaml_load
+
+        if hasattr(class_, "name"):
+            plugin_name = class_.name
+        else:
+            plugin_name = class_.__name__
+
+        if kwargs.get(attr) is not None:
+            return kwargs[attr]
+        elif constructor is not None:
+            if attr_of_constructor:
+                if hasattr(constructor, attr):
+                    return yaml_load(getattr(constructor, attr))
+            else:
+                if (hasattr(constructor, "plugin_config")
+                and plugin_name in constructor.plugin_config):
+                    config = yaml_load(constructor.plugin_config[plugin_name])
+                    if attr in config:
+                        return config[attr]
+        return None
+
+    def initialize(self, destination, key, comment=None):
+        """
+        Initializes a level within a nascent spec
+        """
+        from ruamel.yaml.comments import CommentedMap
+
+        destination[key] = CommentedMap()
+        if self.annotate:
+            if comment is None:
+                if hasattr(self, "name"):
+                    comment = self.name
+                else:
+                    comment = self.__class__.__name__
+            destination[key].yaml_add_eol_comment(comment, column=80)
+
+    def set(self, destination, key, value, comment=None):
+        """
+        Sets a value within a nascent spec
+        """
+        from copy import deepcopy
+
+        destination[key] = deepcopy(value)
+        if self.annotate:
+            if comment is None:
+                if hasattr(self, "name"):
+                    comment = self.name
+                else:
+                    comment = self.__class__.__name__
+            destination.yaml_add_eol_comment(comment, key, column=80)

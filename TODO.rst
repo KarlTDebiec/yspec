@@ -8,6 +8,7 @@ Future Tasks
 ------------
 - [ ] Start documentation
 - [ ] Track argument access as well as origin
+- [ ] Figure out how to offer multiple levels of help on CL
 - [ ] YSpecConstructor: CL argument for plugin selection
 - [ ] YSpecConstructor: CL argument --full-help
 - [ ] DefaultsPlugin: CL argument to read defaults from file

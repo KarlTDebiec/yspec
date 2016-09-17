@@ -15,9 +15,11 @@ from __future__ import absolute_import,division,print_function,unicode_literals
 if __name__ == "__main__":
     __package__ = str("yspec")
     import yspec
+from . import YSpecCLTool
 ################################### CLASSES ###################################
-class YSpecConstructor(object):
+class YSpecConstructor(YSpecCLTool):
     """
+    Constructs yaml-format specification
     """
     from collections import OrderedDict
     from .plugins.InitializePlugin import InitializePlugin
@@ -35,9 +37,70 @@ class YSpecConstructor(object):
     indexed_levels = """"""
     plugin_config = dict()
 
+    @classmethod
+    def construct_argparser(class_, **kwargs):
+        """
+        Adds arguments to a nascent argument parser
+
+        Arguments:
+          kwargs (dict): Additional keyword arguments
+
+        Returns:
+          ArgumentParser: Argument parser or subparser
+        """
+
+        # Process arguments
+        parser = class_.get_parser(**kwargs)
+        if parser.get_default("class_") is None:
+            parser.set_defaults(class_=class_)
+
+        verbosity = class_.add_mutually_exclusive_argument_group(parser,
+          "verbosity")
+        class_.add_argument(verbosity,
+          "-v", "--verbose",
+          action   = "count",
+          default  = 1,
+          help     = "enable verbose output, may be specified more than once")
+        class_.add_argument(verbosity,
+          "-q", "--quiet",
+          action   = "store_const",
+          const    = 0,
+          default  = 1,
+          dest     = "verbose",
+          help     = "disable verbose output")
+        class_.add_argument(parser,
+          "-d", "--debug",
+          action   = "count",
+          default  = 1,
+          help     = "enable debug output, may be specified more than once")
+
+        if len(class_.available_plugins) > 0:
+            if (hasattr(class_, "default_plugins")
+            and len(class_.default_plugins) > 0):
+                parser.description += \
+                  "\ndefault plugin order:\n  {0}\n\n".format(
+                  " → ".join( class_.default_plugins))
+            parser.description += "available plugins:\n"
+            for name, plugin in class_.available_plugins.items():
+                plugin.add_arguments(parser, constructor=class_)
+
+        class_.add_argument(parser,
+          "-spec",
+          required = True,
+          dest     = "source_spec",
+          metavar  = "SPEC",
+          type     = str,
+          help     = "input file from which to load source spec")
+        parser.set_defaults(class_=class_)
+
+        return parser
+
     def __init__(self, source_spec=None, plugins=None, **kwargs):
         """
         Arguments:
+          source_spec (str): Path to source spec infile
+          plugins (list, optional): Sequence of plugins with which to
+            prepare spec
           verbose (int): Level of verbose output
           kwargs (dict): Additional keyword arguments
         """
@@ -70,51 +133,8 @@ class YSpecConstructor(object):
     def main(class_):
         """
         """
-        import argparse
-
         # Prepare argument parser
-        parser = argparse.ArgumentParser(
-          formatter_class = argparse.RawDescriptionHelpFormatter,
-          description     = __doc__,
-          epilog          = "")
-        verbosity = parser.add_mutually_exclusive_group()
-        verbosity.add_argument(
-          "-v",
-          "--verbose",
-          action   = "count",
-          default  = 1,
-          help     = "enable verbose output, may be specified more than once")
-        verbosity.add_argument(
-          "-q",
-          "--quiet",
-          action   = "store_const",
-          const    = 0,
-          default  = 1,
-          dest     = "verbose",
-          help     = "disable verbose output")
-
-        parser.add_argument(
-          "-d",
-          "--debug",
-          action   = "count",
-          default  = 0,
-          help     = "enable debug output, may be specified more than once")
-
-        if len(class_.available_plugins) > 0:
-            parser.description += "\ndefault plugin order:\n  {0}\n\n".format(
-              " → ".join(class_.available_plugins.keys()))
-            parser.description += "available plugins:\n"
-            for name, plugin in class_.available_plugins.items():
-                plugin.construct_argparser(parser, constructor=class_)
-
-        parser.add_argument(
-          "-spec",
-          required = True,
-          dest     = "source_spec",
-          metavar  = "SPEC",
-          type     = str,
-          help     = "input file from which to load source spec")
-        parser.set_defaults(class_=class_)
+        parser = class_.construct_argparser()
 
         # Parse arguments
         kwargs = vars(parser.parse_args())

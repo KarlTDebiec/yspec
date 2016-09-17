@@ -30,30 +30,12 @@ class DefaultsPlugin(YSpecPlugin):
     name = "defaults"
     description = """adds default arguments to nascent spec"""
 
-    def __init__(self, indexed_levels=None, defaults=None, constructor=None,
-        **kwargs):
+    def __init__(self, **kwargs):
         """
         """
-        from .. import yaml_load
-
-        if indexed_levels is not None:
-            self.indexed_levels = indexed_levels
-        elif (constructor is not None
-        and hasattr(constructor, "indexed_levels")):
-            self.indexed_levels = yaml_load(constructor.indexed_levels)
-        else:
-            self.indexed_levels = {}
-
-        if defaults is not None:
-            self.defaults = defaults
-        elif (constructor is not None
-        and hasattr(constructor, "plugin_config")
-        and "defaults" in constructor.plugin_config
-        and "defaults" in constructor.plugin_config["defaults"]):
-            self.defaults = yaml_load(
-              constructor.plugin_config["defaults"])["defaults"]
-        else:
-            self.defaults = {}
+        self.indexed_levels = self.get_config("indexed_levels",
+          attr_of_constructor=True, **kwargs)
+        self.defaults = self.get_config("defaults", **kwargs)
 
     def __call__(self, spec, source_spec=None, **kwargs):
         """

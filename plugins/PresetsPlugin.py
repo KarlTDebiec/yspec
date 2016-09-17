@@ -57,7 +57,7 @@ class PresetsPlugin(YSpecPlugin):
           type     = str,
           nargs    = "*",
           metavar  = "PRESET",
-          help     = "!FULL: selected presets to apply to entire spec")
+          help     = "selected presets to apply to entire spec")
 
         # Format preset help text and extension pattern
         available_presets = class_.initialize_available_presets(**kwargs)
@@ -217,7 +217,7 @@ class PresetsPlugin(YSpecPlugin):
             # At base level of file, presets passed at command line override
             # presets read from file
             path = []
-            source_spec_presets = source_spec["presets"]
+            source_spec_presets = source_spec.get("presets", [])
             if isinstance(source_spec_presets, six.string_types):
                 source_spec_presets = [source_spec_presets]
             temp = source_spec_presets

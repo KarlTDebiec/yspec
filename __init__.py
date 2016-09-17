@@ -259,16 +259,14 @@ class YSpecCLTool(object):
         return group
 
     @classmethod
-    def get_parser(class_, parser_or_subparsers=None, name=None,
-        description=None, **kwargs):
+    def get_parser(class_, parser=None, name=None, description=None, **kwargs):
         """
-
         Arguments:
-          parser_or_subparsers (ArgumentParser, _SubParsersAction,
-            optional): If ArgumentParser, existing parser to which
-            arguments will be added; if _SubParsersAction, collection of
-            subparsers to which a new argument parser will be added; if
-            None, a new argument parser will be generated
+          parser (ArgumentParser, _SubParsersAction, optional): If
+            ArgumentParser, existing parser to which arguments will be
+            added; if _SubParsersAction, collection of subparsers to
+            which a new argument parser will be added; if None, a new
+            argument parser will be generated
           name (str, optional): Name of spec constructor
           description (str, optional): Description of spec constructor
           kwargs (dict): Additional keyword arguments
@@ -289,14 +287,15 @@ class YSpecCLTool(object):
                 description = class_.description
             else:
                 description = strfmt(class_.__doc__.split("\n\n")[0]) + "\n"
-        if isinstance(parser_or_subparsers, argparse.ArgumentParser):
-            parser = parser_or_subparsers
-        elif isinstance(parser_or_subparsers, argparse._SubParsersAction):
-            parser = parser_or_subparsers.add_parser(
+        if isinstance(parser, argparse.ArgumentParser):
+            pass
+        elif isinstance(parser, argparse._SubParsersAction):
+            subparsers = parser
+            parser = subparsers.add_parser(
               name        = name,
               description = description,
               help        = description)
-        elif parser_or_subparsers is None:
+        elif parser is None:
             parser = argparse.ArgumentParser(
               formatter_class = argparse.RawDescriptionHelpFormatter,
               description = description)

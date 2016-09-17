@@ -4,9 +4,10 @@ To Do
 Present Tasks
 -------------
 - [✓] SortPlugin: Implement
-- [ ] SortPlugin: Add some support for manual ordering
-- [ ] PresetPlugin: Reimplement support for preset inheritance and extension
-- [ ] PresetPlugin: Reimplement support for verbose preset output
+- [✓] SortPlugin: Add some support for manual ordering
+- [ ] PresetsPluginin:
+- [ ] PresetsPluginin: Reimplement support for preset inheritance and extension
+- [ ] PresetsPluginin: Reimplement support for verbose preset output
 
 Future Tasks
 ------------
@@ -16,6 +17,8 @@ Future Tasks
 - [ ] DefaultsPlugin: Read defaults from file
 - [ ] PresetsPlugin: Read presets from file
 - [ ] PresetsPlugin: Set global preset manually
+- [ ] PresetsPlugin: Mutual exclusivity
+- [ ] PresetsPlugin: Fix order of loops?
 - [ ] Start documentation
 
 Potenial Future Tasks
@@ -26,3 +29,7 @@ Potenial Future Tasks
 
 Completed Tasks
 ---------------
+
+Minor Issues
+------------
+- Keys set to [] do not retain comment

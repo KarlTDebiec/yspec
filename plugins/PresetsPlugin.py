@@ -50,19 +50,21 @@ class PresetsPlugin(YSpecPlugin):
         super(PresetsPlugin, class_).construct_argparser(parser=parser,
           **kwargs)
 
-#        arg_group = parser.add_argument_group("Settings for {0} plugin".format(
-#          class_.name))
+        arg_group = parser.add_argument_group("Settings for {0} plugin".format(
+          class_.name))
 #        arg_group.add_argument(
 #          "-available-presets",
 #          dest     = "available_presets",
 #          type     = str,
 #          help     = """input file from which to load available presets (yaml
 #                     format)""")
-#        arg_group.add_argument(
-#          "-selected-presets",
-#          dest     = "selected_presets",
-#          type     = str,
-#          help     = "selected presets to apply to entire spec")
+        arg_group.add_argument(
+          "-presets",
+          dest     = "selected_presets",
+          type     = str,
+          nargs    = "*",
+          metavar  = "PRESET",
+          help     = "selected presets to apply to entire spec")
 
         return parser
 
@@ -91,14 +93,14 @@ class PresetsPlugin(YSpecPlugin):
         Returns:
           CommentedMap: Updated spec including preset arguments
         """
+        selected_presets = kwargs.get("selected_presets", [])
 
-        if source_spec is not None:
-            self.process_level(spec, source_spec, self.indexed_levels,
-              self.available_presets)
+        self.process_level(spec, source_spec, self.indexed_levels,
+          self.available_presets, selected_presets=selected_presets)
         return spec
 
     def process_level(self, spec, source_spec, indexed_levels,
-        available_presets, selected_presets=None):
+        available_presets, selected_presets=None, path=None):
         """
         Adds selected preset arguments to one level of spec hierarchy
 
@@ -109,6 +111,7 @@ class PresetsPlugin(YSpecPlugin):
           available_presets (dict): Available presets within current
             level
           selected_presets (list): Presets selected above current level
+          path (list): List of keys leading to this level
         """
         import six
 
@@ -123,7 +126,22 @@ class PresetsPlugin(YSpecPlugin):
             selected_presets = selected_presets[:]
         if source_spec is None:
             source_spec = {}
-        if "presets" in source_spec:
+        if path is None:
+            # At base level of file, presets passed at command line override
+            # presets read from file
+            path = []
+            source_spec_presets = source_spec["presets"]
+            if isinstance(source_spec_presets, six.string_types):
+                source_spec_presets = [source_spec_presets]
+            temp = source_spec_presets
+            for preset in selected_presets:
+                if preset in temp:
+                    temp.remove(preset)
+                temp += [preset]
+            selected_presets = temp
+        elif "presets" in source_spec:
+            # At subsequent levels, presets read at this level override presets
+            # inherited from levels above
             source_spec_presets = source_spec["presets"]
             if isinstance(source_spec_presets, six.string_types):
                 source_spec_presets = [source_spec_presets]
@@ -139,8 +157,8 @@ class PresetsPlugin(YSpecPlugin):
 
             # Loop over preset argument keys and values at this level
             for preset_key, preset_val in [(k, v)
-            for k, v in available_presets[selected_preset].items()
-            if not k.startswith("_")]:
+                    for k, v in available_presets[selected_preset].items()
+                    if not k.startswith("_")]:
                 # This level is indexed; loop over indexes as well
                 if preset_key in indexed_levels:
                     # Make new dict of available_presets including only
@@ -148,7 +166,7 @@ class PresetsPlugin(YSpecPlugin):
                     if preset_key not in spec:
                         continue
                     for index in sorted([k for k in spec[preset_key]
-                    if str(k).isdigit()]):
+                            if str(k).isdigit()]):
                         # Make new dict of available_presets including only
                         # those applicable to the next level
                         level_available_presets = {k: v[preset_key]
@@ -159,7 +177,8 @@ class PresetsPlugin(YSpecPlugin):
                           source_spec.get(preset_key, {}).get(index, {}),
                           indexed_levels.get(preset_key, {}),
                           level_available_presets,
-                          selected_presets)
+                          selected_presets,
+                          path=path+[preset_key, index])
                 # This level is not indexed
                 else:
                     # preset_val is a dict; recurse
@@ -178,7 +197,8 @@ class PresetsPlugin(YSpecPlugin):
                           source_spec.get(preset_key, {}),
                           indexed_levels.get(preset_key, {}),
                           level_available_presets,
-                          selected_presets)
+                          selected_presets,
+                          path=path+[preset_key])
                     # preset_val is singular; store and continue loop
                     else:
                         self.set(spec, preset_key, preset_val,

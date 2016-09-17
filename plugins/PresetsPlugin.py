@@ -47,6 +47,8 @@ class PresetsPlugin(YSpecPlugin):
         Returns:
           ArgumentParser: Argument parser
         """
+        from collections import OrderedDict
+        from textwrap import wrap
 
         super(PresetsPlugin, class_).construct_argparser(parser=parser,
           constructor=constructor, **kwargs)
@@ -61,18 +63,12 @@ class PresetsPlugin(YSpecPlugin):
           metavar  = "PRESET",
           help     = "selected presets to apply to entire spec")
 
-
-        arg_group.description = """hey, we have lots of presets here
-        {0}""".format(constructor)
-        available_presets = class_.initialize_available_presets(constructor)
-        from textwrap import wrap
-        from collections import OrderedDict
-
-        full_presets = OrderedDict(sorted([(k, v)
-          for k, v in available_presets.items() if "_extends" not in v]))
-
+        # Format preset help text and extension pattern
         description = "available presets:\n"
-        for preset_name, preset in full_presets.items():
+        available_presets = class_.initialize_available_presets(constructor)
+        base_presets = OrderedDict(sorted([(k, v)
+          for k, v in available_presets.items() if "_extends" not in v]))
+        for preset_name, preset in base_presets.items():
             extensions = sorted([(k, v)
                            for k, v in available_presets.items()
                            if v.get("_extends") == preset_name])
@@ -116,7 +112,8 @@ class PresetsPlugin(YSpecPlugin):
         return parser
 
     @classmethod
-    def initialize_available_presets(class_, constructor):
+    def initialize_available_presets(class_, constructor,
+        available_presets=None, **kwargs):
         """
         Initializes available presets, carrying out inheritance and
         extension
@@ -128,37 +125,50 @@ class PresetsPlugin(YSpecPlugin):
         returns:
            dict: available presets, after inheritance and extension
         """
-        if (hasattr(constructor, "plugin_config")
+        from inspect import getmro
+        from .. import merge_dicts, yaml_load
+
+        if available_presets is not None:
+            available_presets = yaml_load(available_presets)
+        elif (hasattr(constructor, "plugin_config")
         and "presets" in constructor.plugin_config
         and "available_presets" in constructor.plugin_config["presets"]):
-            from inspect import getmro
-            from .. import merge_dicts, yaml_load
-
             available_presets = yaml_load(
               constructor.plugin_config["presets"])["available_presets"]
-            # Cannot figure out how to use super() here
-            super_presets = class_.initialize_available_presets(
-              getmro(constructor)[1])
-                
-            for name, preset in available_presets.items():
-                if "_inherits" in preset:
-                    parent_name = preset["_inherits"]
-                    if parent_name in super_presets:
-                        available_presets[name] = merge_dicts(
-                          super_presets[parent_name], preset)
-
-            for name, preset in available_presets.items():
-                if "_extends" in preset:
-                    parent_name = preset["_extends"]
-                    if parent_name in available_presets:
-                        available_presets[name] = merge_dicts(
-                          available_presets[parent_name], preset)
-
-            return available_presets
         else:
-            return {}
+            available_presets = {}
 
-    def __init__(self, indexed_levels=None, available_presets=None,
+        # Cannot figure out how to use super() here
+        if isinstance(constructor, type):
+            mro = getmro(constructor)
+            if len(mro) >= 2:
+                super_presets = class_.initialize_available_presets(mro[1])
+            else:
+                super_presets = {}
+        else:
+            mro = getmro(type(constructor))
+            if len(mro) >= 2:
+                super_presets = class_.initialize_available_presets(mro[1])
+            else:
+                super_presets = {}
+
+        for name, preset in available_presets.items():
+            if "_inherits" in preset:
+                parent_name = preset["_inherits"]
+                if parent_name in super_presets:
+                    available_presets[name] = merge_dicts(
+                      super_presets[parent_name], preset)
+
+        for name, preset in available_presets.items():
+            if "_extends" in preset:
+                parent_name = preset["_extends"]
+                if parent_name in available_presets:
+                    available_presets[name] = merge_dicts(
+                      available_presets[parent_name], preset)
+
+        return available_presets
+
+    def __init__(self, indexed_levels=None,
         constructor=None, **kwargs):
         """
         """
@@ -172,16 +182,8 @@ class PresetsPlugin(YSpecPlugin):
         else:
             self.indexed_levels = {}
 
-        if available_presets is not None:
-            self.available_presets = available_presets
-        elif (constructor is not None
-        and hasattr(constructor, "plugin_config")
-        and "presets" in constructor.plugin_config
-        and "available_presets" in constructor.plugin_config["presets"]):
-            self.available_presets = yaml_load(
-              constructor.plugin_config["presets"])["available_presets"]
-        else:
-            self.available_presets = {}
+        self.available_presets = self.initialize_available_presets(
+          constructor=constructor, **kwargs)
 
     def __call__(self, spec, source_spec=None, **kwargs):
         """

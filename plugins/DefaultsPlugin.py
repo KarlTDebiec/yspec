@@ -8,7 +8,7 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
 """
-Adds default arguments to a nascent spec.
+Adds default arguments to a nascent spec
 """
 ################################### MODULES ###################################
 from __future__ import absolute_import,division,print_function,unicode_literals
@@ -19,7 +19,7 @@ from . import YSpecPlugin
 ################################### CLASSES ###################################
 class DefaultsPlugin(YSpecPlugin):
     """
-    Adds default arguments to a nascent spec.
+    Adds default arguments to a nascent spec
 
     Attributes
       name (str): Name of this plugin
@@ -28,46 +28,30 @@ class DefaultsPlugin(YSpecPlugin):
       defaults (dict): Default arguments
     """
     name = "defaults"
-    description = """Adds default arguments based on structure observed
-      in nascent spec."""
+    description = """adds default arguments to nascent spec"""
 
-    @classmethod
-    def construct_argparser(class_, parser, **kwargs):
-        """
-        Adds arguments to a nascent argument parser
-
-        Arguments:
-          parser (ArgumentParser): Parser to which arguments will be
-            added
-          kwargs (dict): Additional keyword arguments
-
-        Returns:
-          ArgumentParser: Argument parser
-        """
-
-        super(DefaultsPlugin, class_).construct_argparser(parser=parser,
-          **kwargs)
-
-#        arg_group = parser.add_argument_group("Settings for {0} plugin".format(
-#          class_.name))
-#        arg_group.add_argument(
-#          "-defaults",
-#          dest     = "defaults",
-#          type     = str,
-#          help     = """input file from which to load defaults (yaml
-#                     format)""")
-
-        return parser
-
-    def __init__(self, indexed_levels=None, defaults=None, **kwargs):
+    def __init__(self, indexed_levels=None, defaults=None, constructor=None,
+        **kwargs):
         """
         """
+        from .. import yaml_load
+
         if indexed_levels is not None:
             self.indexed_levels = indexed_levels
+        elif (constructor is not None
+        and hasattr(constructor, "indexed_levels")):
+            self.indexed_levels = yaml_load(constructor.indexed_levels)
         else:
             self.indexed_levels = {}
+
         if defaults is not None:
             self.defaults = defaults
+        elif (constructor is not None
+        and hasattr(constructor, "plugin_config")
+        and "defaults" in constructor.plugin_config
+        and "defaults" in constructor.plugin_config["defaults"]):
+            self.defaults = yaml_load(
+              constructor.plugin_config["defaults"])["defaults"]
         else:
             self.defaults = {}
 

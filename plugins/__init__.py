@@ -61,13 +61,7 @@ class YSpecPlugin(object):
         """
         from .. import strfmt
 
-        if (constructor is not None
-        and hasattr(constructor, "default_plugins")
-        and class_.name in constructor.default_plugins):
-            parser.description += "  {0} (default: {1})\n".format(
-              class_.name, constructor.default_plugins.index(class_.name))
-        else:
-            parser.description += "  {0}\n".format(class_.name)
+        parser.description += "  {0}\n".format(class_.name)
         if hasattr(class_, "description"):
             parser.description += strfmt(class_.description , width=79,
               initial_indent="    ", subsequent_indent="    ") + "\n"

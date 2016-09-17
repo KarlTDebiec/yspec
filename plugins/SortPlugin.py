@@ -8,7 +8,7 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
 """
-Sorts a nascent spec.
+Sorts nascent spec
 """
 ################################### MODULES ###################################
 from __future__ import absolute_import,division,print_function,unicode_literals
@@ -19,7 +19,7 @@ from . import YSpecPlugin
 ################################### CLASSES ###################################
 class SortPlugin(YSpecPlugin):
     """
-    Sorts a nascent spec.
+    Sorts nascent spec
 
     Attributes
       name (str): Name of this plugin
@@ -27,22 +27,41 @@ class SortPlugin(YSpecPlugin):
         additional layer of indexes below them
     """
     name = "sort"
-    description = """Sorts a nascent spec."""
+    description = """sorts nascent spec"""
 
     def __init__(self, indexed_levels=None, header=None, footer=None,
-        **kwargs):
+        constructor=None, **kwargs):
         """
         """
+        from .. import yaml_load
+
         if indexed_levels is not None:
             self.indexed_levels = indexed_levels
+        elif (constructor is not None
+        and hasattr(constructor, "indexed_levels")):
+            self.indexed_levels = yaml_load(constructor.indexed_levels)
         else:
             self.indexed_levels = {}
+
         if header is not None:
             self.header = header
+        elif (constructor is not None
+        and hasattr(constructor, "plugin_config")
+        and "sort" in constructor.plugin_config
+        and "header" in constructor.plugin_config["sort"]):
+            self.header = yaml_load(
+              constructor.plugin_config["sort"])["header"]
         else:
             self.header = []
+
         if footer is not None:
             self.footer = footer
+        elif (constructor is not None
+        and hasattr(constructor, "plugin_config")
+        and "sort" in constructor.plugin_config
+        and "footer" in constructor.plugin_config["sort"]):
+            self.footer = yaml_load(
+              constructor.plugin_config["sort"])["footer"]
         else:
             self.footer = []
 

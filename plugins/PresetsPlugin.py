@@ -30,17 +30,18 @@ class PresetsPlugin(YSpecPlugin):
         with each preset
     """
     name = "presets"
-    description = """Add selected group(s) of 'preset' arguments to nascent
-      spec."""
+    description = """add selected 'preset' arguments to nascent spec"""
 
     @classmethod
-    def construct_argparser(class_, parser, **kwargs):
+    def construct_argparser(class_, parser, constructor, **kwargs):
         """
         Adds arguments to a nascent argument parser
 
         Arguments:
           parser (ArgumentParser): Parser to which arguments will be
             added
+          constructor (YSpecConstructor): Constructor for which parser
+            is being built
           kwargs (dict): Additional keyword arguments
 
         Returns:
@@ -48,16 +49,10 @@ class PresetsPlugin(YSpecPlugin):
         """
 
         super(PresetsPlugin, class_).construct_argparser(parser=parser,
-          **kwargs)
+          constructor=constructor, **kwargs)
 
-        arg_group = parser.add_argument_group("Settings for {0} plugin".format(
+        arg_group = parser.add_argument_group("settings for {0} plugin".format(
           class_.name))
-#        arg_group.add_argument(
-#          "-available-presets",
-#          dest     = "available_presets",
-#          type     = str,
-#          help     = """input file from which to load available presets (yaml
-#                     format)""")
         arg_group.add_argument(
           "-presets",
           dest     = "selected_presets",
@@ -66,18 +61,125 @@ class PresetsPlugin(YSpecPlugin):
           metavar  = "PRESET",
           help     = "selected presets to apply to entire spec")
 
+
+        arg_group.description = """hey, we have lots of presets here
+        {0}""".format(constructor)
+        available_presets = class_.initialize_available_presets(constructor)
+        from textwrap import wrap
+        from collections import OrderedDict
+
+        full_presets = OrderedDict(sorted([(k, v)
+          for k, v in available_presets.items() if "_extends" not in v]))
+
+        description = "available presets:\n"
+        for preset_name, preset in full_presets.items():
+            extensions = sorted([(k, v)
+                           for k, v in available_presets.items()
+                           if v.get("_extends") == preset_name])
+            symbol = "│" if len(extensions) > 0 else " "
+            if "_help" in preset:
+                wrapped = wrap(preset["_help"], 54)
+                if len(preset_name) > 20:
+                    description += "  {0}\n".format(preset_name)
+                    description += "  {0} {1:19}".format(symbol, " ")
+                else:
+                    description += "  {0:18s}".format(preset_name)
+                description += "{0}\n".format(wrapped.pop(0))
+                for line in wrapped:
+                    description += "   {0} {1:19}{2}\n".format(symbol,
+                              " ", line)
+            else:
+                description += "  {0}\n".format(preset_name)
+            for i, (extension_name, extension) in enumerate(extensions,
+                                                    1):
+                symbol = "└" if i == len(extensions) else "├"
+                if "_help" in extension:
+                    wrapped = wrap(extension["_help"], 51)
+                    if len(extension_name) > 16:
+                        description += "   {0} {1}\n".format(symbol,
+                                    extension_name)
+                        symbol = "│" if i != len(extensions) else " "
+                        description += "   {0} {1:15}".format(symbol, " ")
+                    else:
+                        description += "   {0} {1:15}".format(symbol,
+                                    extension_name)
+                    description += "{0}\n".format(wrapped.pop(0))
+                    symbol = "│" if i != len(extensions) else " "
+                    for line in wrapped:
+                        description += "   {0} {1:19}{2}\n".format(symbol,
+                                  " ", line)
+                else:
+                    description += " {0} {1}\n".format(symbol,
+                                extension_name)
+        arg_group.description = description
+
         return parser
 
-    def __init__(self, indexed_levels=None, available_presets=None,**kwargs):
+    @classmethod
+    def initialize_available_presets(class_, constructor):
+        """
+        Initializes available presets, carrying out inheritance and
+        extension
+
+        Arguments:
+          constructor (YSpecConstructor): Constructor for which parser
+            is being built
+
+        returns:
+           dict: available presets, after inheritance and extension
+        """
+        if (hasattr(constructor, "plugin_config")
+        and "presets" in constructor.plugin_config
+        and "available_presets" in constructor.plugin_config["presets"]):
+            from inspect import getmro
+            from .. import merge_dicts, yaml_load
+
+            available_presets = yaml_load(
+              constructor.plugin_config["presets"])["available_presets"]
+            # Cannot figure out how to use super() here
+            super_presets = class_.initialize_available_presets(
+              getmro(constructor)[1])
+                
+            for name, preset in available_presets.items():
+                if "_inherits" in preset:
+                    parent_name = preset["_inherits"]
+                    if parent_name in super_presets:
+                        available_presets[name] = merge_dicts(
+                          super_presets[parent_name], preset)
+
+            for name, preset in available_presets.items():
+                if "_extends" in preset:
+                    parent_name = preset["_extends"]
+                    if parent_name in available_presets:
+                        available_presets[name] = merge_dicts(
+                          available_presets[parent_name], preset)
+
+            return available_presets
+        else:
+            return {}
+
+    def __init__(self, indexed_levels=None, available_presets=None,
+        constructor=None, **kwargs):
         """
         """
+        from .. import yaml_load
 
         if indexed_levels is not None:
             self.indexed_levels = indexed_levels
+        elif (constructor is not None
+        and hasattr(constructor, "indexed_levels")):
+            self.indexed_levels = yaml_load(constructor.indexed_levels)
         else:
             self.indexed_levels = {}
+
         if available_presets is not None:
             self.available_presets = available_presets
+        elif (constructor is not None
+        and hasattr(constructor, "plugin_config")
+        and "presets" in constructor.plugin_config
+        and "available_presets" in constructor.plugin_config["presets"]):
+            self.available_presets = yaml_load(
+              constructor.plugin_config["presets"])["available_presets"]
         else:
             self.available_presets = {}
 

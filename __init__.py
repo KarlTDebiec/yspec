@@ -26,7 +26,7 @@ import six
 ################################## FUNCTIONS ##################################
 def wrapprint(text, width=80, subsequent_indent="  ", **kwargs):
     """
-    Prints wrapped text.
+    Prints wrapped text
 
     Arguments:
       text (str): Text to wrap
@@ -44,7 +44,7 @@ def wrapprint(text, width=80, subsequent_indent="  ", **kwargs):
 
 def strfmt(text, width=None, subsequent_indent="  ", **kwargs):
     """
-    Formats whitespace in text.
+    Formats whitespace in text
 
     Arguments:
       text (str): Text to format
@@ -64,6 +64,54 @@ def strfmt(text, width=None, subsequent_indent="  ", **kwargs):
         tw = TextWrapper(width=width, subsequent_indent=subsequent_indent,
                **kwargs)
         return(tw.fill(re.sub(r"\s+", " ", text).strip()))
+
+def merge_dicts(dict_1, dict_2):
+    """
+    Recursively merges two dictionaries
+
+    Arguments:
+      dict_1 (dict): First dictionary
+      dict_2 (dict): Second dictionary; values for keys shared by both
+        dictionaries are drawn from dict_2
+
+    Returns:
+      dict: Merged dictionary
+
+    Raises:
+      AttributeError: Either dict_1 or dict_2 lacks 'keys' function
+    """
+
+    def merge(dict_1, dict_2):
+        """
+        Generator used to recursively merge two dictionaries
+
+        Arguments:
+          dict_1 (dict): First dictionary
+          dict_2 (dict): Second dictionary; values for keys shared by
+            both dictionaries are drawn from dict_2
+
+        Yields:
+          tuple: Merged (key, value) pair
+        """
+        for key in set(dict_1.keys()).union(dict_2.keys()):
+            if key in dict_1 and key in dict_2:
+                if (isinstance(dict_1[key], dict)
+                and isinstance(dict_2[key], dict)):
+                    yield (key, dict(merge(dict_1[key], dict_2[key])))
+                else:
+                    yield (key, dict_2[key])
+            elif key in dict_1:
+                yield (key, dict_1[key])
+            else:
+                yield (key, dict_2[key])
+
+    if not isinstance(dict_1, dict) or not isinstance(dict_2, dict):
+        raise Exception(strfmt("""Function yspec.merge_dicts() requires
+          arguments 'dict_1' and 'dict_2' to be dictionaries; arguments
+          of types '{0}' and '{1}' provided""".format(
+          dict_1.__class__.__name__, dict_2.__class__.__name__)))
+
+    return dict(merge(dict_1, dict_2))
 
 def yaml_load(input_):
     """

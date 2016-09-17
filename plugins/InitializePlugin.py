@@ -27,14 +27,19 @@ class InitializePlugin(YSpecPlugin):
         additional layer of indexes below them
     """
     name = "initialize"
-    description = """Initializes indexed levels of nascent spec based on
-      structure present in source spec."""
+    description = """initializes indexed levels of nascent spec based on
+      source spec"""
 
-    def __init__(self, indexed_levels=None, **kwargs):
+    def __init__(self, indexed_levels=None, constructor=None, **kwargs):
         """
         """
+        from .. import yaml_load
+
         if indexed_levels is not None:
-            self.indexed_levels = indexed_levels
+            self.indexed_levels = yaml_load(indexed_levels)
+        elif (constructor is not None
+        and hasattr(constructor, "indexed_levels")):
+            self.indexed_levels = yaml_load(constructor.indexed_levels)
         else:
             self.indexed_levels = {}
 

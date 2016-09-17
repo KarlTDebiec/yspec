@@ -8,11 +8,7 @@
 #   This software may be modified and distributed under the terms of the
 #   BSD license. See the LICENSE file for details.
 """
-Adds manually-set arguments to a nascent spec.
-
-.. todo:
-  - Add option to expand environment variables
-  - Add option to keep slices
+Copies arguments to nascent spec from source spec
 """
 ################################### MODULES ###################################
 from __future__ import absolute_import,division,print_function,unicode_literals
@@ -23,7 +19,7 @@ from . import YSpecPlugin
 ################################### CLASSES ###################################
 class ManualPlugin(YSpecPlugin):
     """
-    Adds manually-set arguments to a nascent spec.
+    Copies arguments to nascent spec from source spec
 
     Attributes
       name (str): Name of this plugin
@@ -31,13 +27,18 @@ class ManualPlugin(YSpecPlugin):
         additional layer of indexes below them
     """
     name = "manual"
-    description = """Adds arguments from source spec to nascent spec"""
+    description = """copies arguments to nascent spec from source spec"""
 
-    def __init__(self, indexed_levels=None, **kwargs):
+    def __init__(self, indexed_levels=None, constructor=None, **kwargs):
         """
         """
+        from .. import yaml_load
+
         if indexed_levels is not None:
             self.indexed_levels = indexed_levels
+        elif (constructor is not None
+        and hasattr(constructor, "indexed_levels")):
+            self.indexed_levels = yaml_load(constructor.indexed_levels)
         else:
             self.indexed_levels = {}
 

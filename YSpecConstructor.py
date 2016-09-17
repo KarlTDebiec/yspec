@@ -24,14 +24,16 @@ class YSpecConstructor(object):
     from .plugins.DefaultsPlugin import DefaultsPlugin
     from .plugins.PresetsPlugin import PresetsPlugin
     from .plugins.ManualPlugin import ManualPlugin
+    from .plugins.SortPlugin import SortPlugin
     available_plugins = OrderedDict([
       ("initialize", InitializePlugin),
       ("defaults", DefaultsPlugin),
       ("presets", PresetsPlugin),
-      ("manual", ManualPlugin)])
-    default_plugins = ["initialize", "defaults", "presets", "manual"]
-    indexed_levels = {}
-    plugin_config = {}
+      ("manual", ManualPlugin),
+      ("sort", SortPlugin)])
+    default_plugins = ["initialize", "defaults", "presets", "manual", "sort"]
+    indexed_levels = """"""
+    plugin_config = dict()
 
     def __init__(self, source_spec=None, plugins=None, **kwargs):
         """
@@ -51,9 +53,8 @@ class YSpecConstructor(object):
         # Prepare spec
         self.spec = CommentedMap()
         for plugin_name in self.plugins:
-            plugin = self.available_plugins[plugin_name](
-              indexed_levels=yaml_load(self.indexed_levels),
-              **yaml_load(self.plugin_config.get(plugin_name, {})))
+            plugin = self.available_plugins[plugin_name](constructor=self,
+              **kwargs)
             self.spec = plugin(self.spec, self.source_spec, **kwargs)
             # Output intermediate spec
             if verbose >= 3:
@@ -100,8 +101,10 @@ class YSpecConstructor(object):
           help     = "enable debug output, may be specified more than once")
 
         if len(class_.available_plugins) > 0:
-            parser.description += "\n\nAvailable Plugins:\n\n"
-            for plugin in class_.available_plugins.values():
+            parser.description += "\ndefault plugin order:\n  {0}\n\n".format(
+              " → ".join(class_.available_plugins.keys()))
+            parser.description += "available plugins:\n"
+            for name, plugin in class_.available_plugins.items():
                 plugin.construct_argparser(parser, constructor=class_)
 
         parser.add_argument(

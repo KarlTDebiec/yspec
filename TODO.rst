@@ -3,6 +3,7 @@ To Do
 
 Present Tasks
 -------------
+- [✓] CLArgumentPlugin: Implement
 
 Future Tasks
 ------------
@@ -10,7 +11,6 @@ Future Tasks
 - [ ] Track argument access as well as origin
 - [ ] Figure out how to offer multiple levels of help on CL
 - [ ] YSpecConstructor: CL argument for plugin selection
-- [ ] YSpecConstructor: CL argument --full-help
 - [ ] DefaultsPlugin: CL argument to read defaults from file
 - [ ] DefaultsPlugin: Track path (for consistency)
 - [ ] PresetsPlugin: CL argument to read available presets from file

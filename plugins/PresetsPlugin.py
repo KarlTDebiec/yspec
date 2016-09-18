@@ -23,6 +23,7 @@ class PresetsPlugin(YSpecPlugin):
 
     Attributes
       name (str): Name of this plugin
+      description (str): Description of this plugin
       indexed_levels (dict): Levels of spec hierarchy that include an
         additional layer of indexes below them
       available_presets (dict): Available presets; outermost keys are

@@ -23,6 +23,7 @@ class DefaultsPlugin(YSpecPlugin):
 
     Attributes
       name (str): Name of this plugin
+      description (str): Description of this plugin
       indexed_levels (dict): Levels of spec hierarchy that include an
         additional layer of indexes below them
       defaults (dict): Default arguments
@@ -39,7 +40,7 @@ class DefaultsPlugin(YSpecPlugin):
 
     def __call__(self, spec, source_spec=None, **kwargs):
         """
-        Adds default arguments to a nascent spec.
+        Adds default arguments to nascent spec
 
         Arguments:
           spec (CommentedMap): Nascent spec

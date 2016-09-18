@@ -22,14 +22,15 @@ Future Tasks
 - [ ] WritePlugin: Implement; polish yaml_dump
 - [ ] yaml_dump: Arguments to enable/disable annotation and set column number
 
-Potenial Future Tasks
----------------------
+Potential Future Tasks
+----------------------
 - [ ] ArgsPlugin: Implement; accept manual arguments for terminal
 - [ ] Store argument origin (and usage) separately from comment (but similarly)
   by subclassing classes from ruamel
 - [ ] ManualPlugin: CL argument to expand environment variables
 - [ ] ManualPlugin: CL argument keep slices in final spec
 - [ ] ManualPlugin: CL argument to prevent expansion of lists under "all"
+- [ ] Consider splitting off indexed plugins; may be confusing if not needed
 
 Minor Issues
 ------------

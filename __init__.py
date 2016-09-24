@@ -259,7 +259,43 @@ class YSpecCLTool(object):
         return group
 
     @classmethod
-    def get_parser(class_, parser=None, name=None, description=None, **kwargs):
+    def get_help_arg_groups(class_, **kwargs):
+        """
+        """
+        import sys
+
+        if "--full-help" in sys.argv:
+            help_groups = ["*"]
+            sys.argv.pop(sys.argv.index("--full-help"))
+            sys.argv += ["--help"]
+        elif "--help" in sys.argv:
+            help_groups = []
+            argv_prehelp  = sys.argv[:sys.argv.index("--help")]
+            argv_posthelp = list(sys.argv[sys.argv.index("--help")+1:])
+            for i, arg in enumerate(argv_posthelp):
+                if arg.startswith("-"):
+                    break
+                else:
+                    help_groups += [arg]
+            sys.argv = argv_prehelp + ["-h"] + argv_posthelp[i:]
+        elif "-h" in sys.argv:
+            help_groups = []
+            argv_prehelp  = sys.argv[:sys.argv.index("-h")]
+            argv_posthelp = sys.argv[sys.argv.index("-h")+1:]
+            for i, arg in enumerate(argv_posthelp):
+                if arg.startswith("-"):
+                    break
+                else:
+                    help_groups += [arg]
+            sys.argv = argv_prehelp + ["-h"] + argv_posthelp[i:]
+        else:
+            help_groups = []
+        print(help_groups)
+        return help_groups
+
+    @classmethod
+    def get_argparser(class_, parser=None, name=None, description=None, 
+        grouped_help=False, **kwargs):
         """
         Arguments:
           parser (ArgumentParser, _SubParsersAction, optional): If
@@ -287,17 +323,28 @@ class YSpecCLTool(object):
                 description = class_.description
             else:
                 description = strfmt(class_.__doc__.split("\n\n")[0]) + "\n"
+
         if isinstance(parser, argparse.ArgumentParser):
             pass
         elif isinstance(parser, argparse._SubParsersAction):
             subparsers = parser
-            parser = subparsers.add_parser(
-              name        = name,
-              description = description,
-              help        = description)
+            parser = subparsers.add_parser(name=name, description=description,
+              help=description)
         elif parser is None:
-            parser = argparse.ArgumentParser(
-              formatter_class = argparse.RawDescriptionHelpFormatter,
-              description = description)
+            if grouped_help:
+                parser = argparse.ArgumentParser( description=description,
+                  formatter_class=argparse.RawDescriptionHelpFormatter,
+                  add_help=False)
+                parser.add_argument(
+                  "-h", "--help", "--full-help",
+                  action = "help",
+                  help   = """show this help message and exit; detailed help
+                           for sections: {0} may be obtained by adding them as
+                           arguments; while '--full-help' may be used to view
+                           all available help """.format(str(map(str,
+                           class_.help_groups)).replace("'","")))
+            else:
+                parser = argparse.ArgumentParser( description=description,
+                  formatter_class=argparse.RawDescriptionHelpFormatter)
 
         return parser

@@ -24,8 +24,7 @@ class YSpecPlugin(YSpecCLTool):
     annotate = True
 
     @classmethod
-    def add_arguments(class_, parser, name=None, description=None,
-        **kwargs):
+    def add_arguments(class_, parser, name=None, description=None, **kwargs):
         """
         Adds name and description of plugin to a nascent argument parser
 
@@ -42,6 +41,7 @@ class YSpecPlugin(YSpecCLTool):
         from .. import strfmt
 
         # Process arguments
+        help_dest = kwargs.get("help_dest", parser)
         if name is None:
             if hasattr(class_, "name"):
                 name = class_.name
@@ -53,8 +53,9 @@ class YSpecPlugin(YSpecCLTool):
             else:
                 description = class_.__doc__
 
+
         # Add description of this plugin
-        parser.description += "  {0}\n".format(name) + strfmt(description ,
+        help_dest.description += "  {0}\n".format(name) + strfmt(description ,
           width=79, initial_indent="    ", subsequent_indent="    ") + "\n"
 
         return parser

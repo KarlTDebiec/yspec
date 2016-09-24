@@ -56,7 +56,7 @@ class PresetsPlugin(YSpecPlugin):
           "-presets",
           dest     = "selected_presets",
           type     = str,
-          nargs    = "*",
+          nargs    = "+",
           metavar  = "PRESET",
           help     = "selected presets to apply to entire spec")
 

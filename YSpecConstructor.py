@@ -50,7 +50,7 @@ class YSpecConstructor(YSpecCLTool):
         """
 
         # Process arguments
-        parser = class_.get_parser(**kwargs)
+        parser = class_.get_argparser(**kwargs)
         if parser.get_default("class_") is None:
             parser.set_defaults(class_=class_)
 

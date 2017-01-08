@@ -28,8 +28,8 @@ class TestYSpecConstructor(YSpecConstructor):
     from yspec.plugins.SortPlugin import SortPlugin
 
     available_plugins = dict(initialize=InitializePlugin,
-        defaults=DefaultsPlugin, presets=PresetsPlugin, manual=ManualPlugin,
-        sort=SortPlugin)
+      defaults=DefaultsPlugin, presets=PresetsPlugin, manual=ManualPlugin,
+      sort=SortPlugin)
     default_plugins = ["initialize", "defaults", "presets", "manual", "sort"]
     indexed_levels = """
       level_1:

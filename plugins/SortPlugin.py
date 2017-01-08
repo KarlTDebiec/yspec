@@ -35,7 +35,7 @@ class SortPlugin(YSpecPlugin):
     description = """sorts nascent spec"""
 
     def __init__(self, indexed_levels=None, header=None, footer=None,
-            constructor=None, **kwargs):
+      constructor=None, **kwargs):
         """
         """
         from .. import yaml_load
@@ -43,7 +43,7 @@ class SortPlugin(YSpecPlugin):
         if indexed_levels is not None:
             self.indexed_levels = indexed_levels
         elif (constructor is not None and hasattr(constructor,
-            "indexed_levels")):
+          "indexed_levels")):
             self.indexed_levels = yaml_load(constructor.indexed_levels)
         else:
             self.indexed_levels = {}
@@ -51,7 +51,7 @@ class SortPlugin(YSpecPlugin):
         if header is not None:
             self.header = header
         elif (constructor is not None and hasattr(constructor,
-            "plugin_config") and "sort" in constructor.plugin_config and
+          "plugin_config") and "sort" in constructor.plugin_config and
                 "header" in
             constructor.plugin_config["sort"]):
             self.header = yaml_load(constructor.plugin_config["sort"])[
@@ -62,7 +62,7 @@ class SortPlugin(YSpecPlugin):
         if footer is not None:
             self.footer = footer
         elif (constructor is not None and hasattr(constructor,
-            "plugin_config") and "sort" in constructor.plugin_config and
+          "plugin_config") and "sort" in constructor.plugin_config and
                 "footer" in
             constructor.plugin_config["sort"]):
             self.footer = yaml_load(constructor.plugin_config["sort"])[
@@ -116,16 +116,15 @@ class SortPlugin(YSpecPlugin):
             if isinstance(source_val, dict):
                 if source_key not in spec:
                     self.initialize(spec, source_key,
-                        comment=source_val._yaml_comment.comment[0].value)
+                      comment=source_val._yaml_comment.comment[0].value)
                 if source_key in indexed_levels:
                     self.process_level(spec[source_key],
-                        source_spec.get(source_key, {}),
-                        indexed_levels.get(source_key, {}))
+                      source_spec.get(source_key, {}),
+                      indexed_levels.get(source_key, {}))
                 else:
                     self.process_level(spec[source_key],
-                        source_spec.get(source_key, {}), indexed_levels)
+                      source_spec.get(source_key, {}), indexed_levels)
             # source_val is singular; store and continue loop
             else:
                 self.set(spec, source_key, source_val,
-                    comment=source_spec._yaml_comment.items[source_key][
-                        2].value)
+                  comment=source_spec._yaml_comment.items[source_key][2].value)

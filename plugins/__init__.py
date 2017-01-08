@@ -59,13 +59,13 @@ class YSpecPlugin(YSpecCLTool):
 
         # Add description of this plugin
         help_dest.description += "  {0}\n".format(name) + strfmt(description,
-            width=79, initial_indent="    ", subsequent_indent="    ") + "\n"
+          width=79, initial_indent="    ", subsequent_indent="    ") + "\n"
 
         return parser
 
     @classmethod
     def get_config(cls, attr, constructor=None, attr_of_constructor=False,
-            **kwargs):
+      **kwargs):
         """
         """
         from .. import yaml_load
@@ -83,7 +83,7 @@ class YSpecPlugin(YSpecCLTool):
                     return yaml_load(getattr(constructor, attr))
             else:
                 if (hasattr(constructor,
-                        "plugin_config") and plugin_name in
+                  "plugin_config") and plugin_name in
                     constructor.plugin_config):
                     config = yaml_load(constructor.plugin_config[plugin_name])
                     if attr in config:

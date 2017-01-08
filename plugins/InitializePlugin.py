@@ -39,7 +39,7 @@ class InitializePlugin(YSpecPlugin):
         """
         """
         self.indexed_levels = self.get_config("indexed_levels",
-            attr_of_constructor=True, **kwargs)
+          attr_of_constructor=True, **kwargs)
 
     def __call__(self, spec, source_spec=None, **kwargs):
         """
@@ -81,23 +81,22 @@ class InitializePlugin(YSpecPlugin):
             if level not in spec:
                 self.initialize(spec, level)
             indexes = sorted(
-                [k for k in source_spec[level] if str(k).isdigit()])
+              [k for k in source_spec[level] if str(k).isdigit()])
             # Apply "all" to all indexes
             if "all" in source_spec.get(level, {}):
-                all_indexes = sorted(list(set(
-                    indexes + [k for k in spec[level] if str(k).isdigit()])))
+                all_indexes = sorted(list(
+                  set(indexes + [k for k in spec[level] if str(k).isdigit()])))
                 for index in all_indexes:
                     if index not in spec[level]:
                         self.initialize(spec[level], index)
                     self.process_level(spec[level][index],
-                        source_spec[level]["all"],
-                        indexed_levels.get(level, {}),
-                        path=path + [level, index])
+                      source_spec[level]["all"], indexed_levels.get(level, {}),
+                      path=path + [level, index])
             # Loop over specific indexes
             for index in indexes:
                 # Add dict in which to store lower levels
                 if index not in spec[level]:
                     self.initialize(spec[level], index)
                 self.process_level(spec[level][index],
-                    source_spec[level].get(index, {}),
-                    indexed_levels.get(level, {}), path=path + [level, index])
+                  source_spec[level].get(index, {}),
+                  indexed_levels.get(level, {}), path=path + [level, index])

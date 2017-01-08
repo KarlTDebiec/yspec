@@ -38,7 +38,7 @@ class ManualPlugin(YSpecPlugin):
         """
         """
         self.indexed_levels = self.get_config("indexed_levels",
-            attr_of_constructor=True, **kwargs)
+          attr_of_constructor=True, **kwargs)
 
     def __call__(self, spec, source_spec=None, **kwargs):
         """
@@ -86,18 +86,18 @@ class ManualPlugin(YSpecPlugin):
                 # Apply arguments from "all" first
                 if "all" in source_spec.get(source_key, {}):
                     for index in sorted(
-                            [k for k in spec[source_key] if str(k).isdigit()]):
+                      [k for k in spec[source_key] if str(k).isdigit()]):
                         self.process_level(spec[source_key][index],
-                            source_spec[source_key]["all"],
-                            indexed_levels.get(source_key, {}),
-                            path=path + [source_key, index])
+                          source_spec[source_key]["all"],
+                          indexed_levels.get(source_key, {}),
+                          path=path + [source_key, index])
                 # Apply index-specific arguments second
                 for index in sorted(
-                        [k for k in spec[source_key] if str(k).isdigit()]):
+                  [k for k in spec[source_key] if str(k).isdigit()]):
                     self.process_level(spec[source_key][index],
-                        source_spec.get(source_key, {}).get(index, {}),
-                        indexed_levels.get(source_key, {}),
-                        path=path + [source_key, index])
+                      source_spec.get(source_key, {}).get(index, {}),
+                      indexed_levels.get(source_key, {}),
+                      path=path + [source_key, index])
             # This level is not indexed
             else:
                 # source_val is a dict; recurse
@@ -105,9 +105,9 @@ class ManualPlugin(YSpecPlugin):
                     if source_key not in spec or spec[source_key] is None:
                         self.initialize(spec, source_key)
                     self.process_level(spec[source_key],
-                        source_spec.get(source_key, {}),
-                        indexed_levels.get(source_key, {}),
-                        path=path + [source_key])
+                      source_spec.get(source_key, {}),
+                      indexed_levels.get(source_key, {}),
+                      path=path + [source_key])
                 # source_val is singular; store and continue loop
                 else:
                     self.set(spec, source_key, source_val)

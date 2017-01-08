@@ -32,9 +32,9 @@ class YSpecConstructor(YSpecCLTool):
     from .plugins.ManualPlugin import ManualPlugin
     from .plugins.SortPlugin import SortPlugin
     available_plugins = OrderedDict(
-        [("initialize", InitializePlugin), ("defaults", DefaultsPlugin),
-            ("presets", PresetsPlugin), ("manual", ManualPlugin),
-            ("sort", SortPlugin)])
+      [("initialize", InitializePlugin), ("defaults", DefaultsPlugin),
+          ("presets", PresetsPlugin), ("manual", ManualPlugin),
+          ("sort", SortPlugin)])
     default_plugins = ["initialize", "defaults", "presets", "manual", "sort"]
     indexed_levels = """"""
     plugin_config = dict()
@@ -57,28 +57,28 @@ class YSpecConstructor(YSpecCLTool):
             parser.set_defaults(cls=cls)
 
         verbosity = cls.add_mutually_exclusive_argument_group(parser,
-            "verbosity")
+          "verbosity")
         cls.add_argument(verbosity, "-v", "--verbose", action="count",
-            default=1,
-            help="enable verbose output, may be specified more than once")
+          default=1,
+          help="enable verbose output, may be specified more than once")
         cls.add_argument(verbosity, "-q", "--quiet", action="store_const",
-            const=0, default=1, dest="verbose", help="disable verbose output")
+          const=0, default=1, dest="verbose", help="disable verbose output")
         cls.add_argument(parser, "-d", "--debug", action="count", default=1,
-            help="enable debug output, may be specified more than once")
+          help="enable debug output, may be specified more than once")
 
         if len(cls.available_plugins) > 0:
             if (hasattr(cls, "default_plugins") and len(
-                cls.default_plugins) > 0):
+              cls.default_plugins) > 0):
                 parser.description += "\ndefault plugin order:\n  {" \
                                       "0}\n\n".format(
-                    " → ".join(cls.default_plugins))
+                  " → ".join(cls.default_plugins))
             parser.description += "available plugins:\n"
             for name, plugin in cls.available_plugins.items():
                 plugin.add_arguments(parser, constructor=cls)
 
         cls.add_argument(parser, "-spec", required=True, dest="source_spec",
-            metavar="SPEC", type=str,
-            help="input file from which to load source spec")
+          metavar="SPEC", type=str,
+          help="input file from which to load source spec")
         parser.set_defaults(cls=cls)
 
         return parser
@@ -105,7 +105,7 @@ class YSpecConstructor(YSpecCLTool):
         self.spec = CommentedMap()
         for plugin_name in self.plugins:
             plugin = self.available_plugins[plugin_name](constructor=self,
-                **kwargs)
+              **kwargs)
             self.spec = plugin(self.spec, self.source_spec, **kwargs)
             # Output intermediate spec
             if verbose >= 3:

@@ -39,7 +39,7 @@ class DefaultsPlugin(YSpecPlugin):
         """
         """
         self.indexed_levels = self.get_config("indexed_levels",
-            attr_of_constructor=True, **kwargs)
+          attr_of_constructor=True, **kwargs)
         self.defaults = self.get_config("defaults", **kwargs)
 
     def __call__(self, spec, source_spec=None, **kwargs):
@@ -56,7 +56,7 @@ class DefaultsPlugin(YSpecPlugin):
         """
         if source_spec is not None:
             self.process_level(spec, source_spec, self.indexed_levels,
-                self.defaults)
+              self.defaults)
         return spec
 
     def process_level(self, spec, source_spec, indexed_levels, defaults):
@@ -86,11 +86,11 @@ class DefaultsPlugin(YSpecPlugin):
                 if default_key not in spec:
                     continue
                 indexes = sorted(
-                    [k for k in spec[default_key] if str(k).isdigit()])
+                  [k for k in spec[default_key] if str(k).isdigit()])
                 for index in indexes:
                     self.process_level(spec[default_key][index],
-                        source_spec.get(default_key, {}).get(index, {}),
-                        indexed_levels.get(default_key, {}), default_val)
+                      source_spec.get(default_key, {}).get(index, {}),
+                      indexed_levels.get(default_key, {}), default_val)
             # This level is not indexed
             else:
                 # default_val is a dict; recurse
@@ -98,8 +98,8 @@ class DefaultsPlugin(YSpecPlugin):
                     if default_key not in spec:
                         self.initialize(spec, default_key)
                     self.process_level(spec[default_key],
-                        source_spec.get(default_key, {}),
-                        indexed_levels.get(default_key, {}), default_val)
+                      source_spec.get(default_key, {}),
+                      indexed_levels.get(default_key, {}), default_val)
                 # default_val is singular; store and continue loop
                 else:
                     self.set(spec, default_key, default_val)

@@ -11,11 +11,15 @@
 Adds preset argument groups to a nascent spec
 """
 ################################### MODULES ###################################
-from __future__ import absolute_import,division,print_function,unicode_literals
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
+
 if __name__ == "__main__":
     __package__ = str("yspec.plugins")
     import yspec.plugins
 from . import YSpecPlugin
+
+
 ################################### CLASSES ###################################
 class PresetsPlugin(YSpecPlugin):
     """
@@ -51,14 +55,10 @@ class PresetsPlugin(YSpecPlugin):
 
         # Arguments unique to this plugin
         arg_group = parser.add_argument_group(
-          "arguments for {0} plugin".format(class_.name))
-        class_.add_argument(arg_group,
-          "-presets",
-          dest     = "selected_presets",
-          type     = str,
-          nargs    = "+",
-          metavar  = "PRESET",
-          help     = "selected presets to apply to entire spec")
+            "arguments for {0} plugin".format(class_.name))
+        class_.add_argument(arg_group, "-presets", dest="selected_presets",
+            type=str, nargs="+", metavar="PRESET",
+            help="selected presets to apply to entire spec")
 
         # Format preset help text and extension pattern
         available_presets = class_.initialize_available_presets(**kwargs)
@@ -66,12 +66,13 @@ class PresetsPlugin(YSpecPlugin):
             description = "no presets available\n"
         else:
             description = "available presets:\n"
-            base_presets = OrderedDict(sorted([(k, v)
-              for k, v in available_presets.items() if "_extends" not in v]))
+            base_presets = OrderedDict(sorted(
+                [(k, v) for k, v in available_presets.items() if
+                    "_extends" not in v]))
             for preset_name, preset in base_presets.items():
-                extensions = sorted([(k, v)
-                               for k, v in available_presets.items()
-                               if v.get("_extends") == preset_name])
+                extensions = sorted(
+                    [(k, v) for k, v in available_presets.items() if
+                        v.get("_extends") == preset_name])
                 symbol = "│" if len(extensions) > 0 else " "
                 if "_help" in preset:
                     wrapped = wrap(preset["_help"], 54)
@@ -82,31 +83,30 @@ class PresetsPlugin(YSpecPlugin):
                         description += "  {0:18s}".format(preset_name)
                     description += "{0}\n".format(wrapped.pop(0))
                     for line in wrapped:
-                        description += "   {0} {1:19}{2}\n".format(symbol,
-                                  " ", line)
+                        description += "   {0} {1:19}{2}\n".format(symbol, " ",
+                            line)
                 else:
                     description += "  {0}\n".format(preset_name)
-                for i, (extension_name, extension) in enumerate(extensions,
-                                                        1):
+                for i, (extension_name, extension) in enumerate(extensions, 1):
                     symbol = "└" if i == len(extensions) else "├"
                     if "_help" in extension:
                         wrapped = wrap(extension["_help"], 51)
                         if len(extension_name) > 16:
                             description += "   {0} {1}\n".format(symbol,
-                                        extension_name)
+                                extension_name)
                             symbol = "│" if i != len(extensions) else " "
                             description += "   {0} {1:15}".format(symbol, " ")
                         else:
                             description += "   {0} {1:15}".format(symbol,
-                                        extension_name)
+                                extension_name)
                         description += "{0}\n".format(wrapped.pop(0))
                         symbol = "│" if i != len(extensions) else " "
                         for line in wrapped:
                             description += "   {0} {1:19}{2}\n".format(symbol,
-                                      " ", line)
+                                " ", line)
                     else:
                         description += " {0} {1}\n".format(symbol,
-                                    extension_name)
+                            extension_name)
         arg_group.description = description
 
         # Arguments inherited from superclass
@@ -142,7 +142,7 @@ class PresetsPlugin(YSpecPlugin):
             mro = getmro(type(constructor))
         if len(mro) >= 2:
             super_presets = class_.initialize_available_presets(
-              constructor=mro[1])
+                constructor=mro[1])
         else:
             super_presets = {}
 
@@ -151,14 +151,14 @@ class PresetsPlugin(YSpecPlugin):
                 parent_name = preset["_inherits"]
                 if parent_name in super_presets:
                     available_presets[name] = merge_dicts(
-                      super_presets[parent_name], preset)
+                        super_presets[parent_name], preset)
 
         for name, preset in available_presets.items():
             if "_extends" in preset:
                 parent_name = preset["_extends"]
                 if parent_name in available_presets:
                     available_presets[name] = merge_dicts(
-                      available_presets[parent_name], preset)
+                        available_presets[parent_name], preset)
 
         return available_presets
 
@@ -166,7 +166,7 @@ class PresetsPlugin(YSpecPlugin):
         """
         """
         self.indexed_levels = self.get_config("indexed_levels",
-          attr_of_constructor=True, **kwargs)
+            attr_of_constructor=True, **kwargs)
         self.available_presets = self.initialize_available_presets(**kwargs)
 
     def __call__(self, spec, source_spec=None, **kwargs):
@@ -184,11 +184,11 @@ class PresetsPlugin(YSpecPlugin):
         selected_presets = kwargs.get("selected_presets", [])
 
         self.process_level(spec, source_spec, self.indexed_levels,
-          self.available_presets, selected_presets=selected_presets)
+            self.available_presets, selected_presets=selected_presets)
         return spec
 
     def process_level(self, spec, source_spec, indexed_levels,
-        available_presets, selected_presets=None, path=None):
+            available_presets, selected_presets=None, path=None):
         """
         Adds selected preset arguments to one level of spec hierarchy
 
@@ -244,50 +244,45 @@ class PresetsPlugin(YSpecPlugin):
                 continue
 
             # Loop over preset argument keys and values at this level
-            for preset_key, preset_val in [(k, v)
-                    for k, v in available_presets[selected_preset].items()
-                    if not k.startswith("_")]:
+            for preset_key, preset_val in [(k, v) for k, v in
+                available_presets[selected_preset].items() if
+                not k.startswith("_")]:
                 # This level is indexed; loop over indexes as well
                 if preset_key in indexed_levels:
                     # Make new dict of available_presets including only
                     # those applicable to the next level
                     if preset_key not in spec:
                         continue
-                    for index in sorted([k for k in spec[preset_key]
-                            if str(k).isdigit()]):
+                    for index in sorted(
+                            [k for k in spec[preset_key] if str(k).isdigit()]):
                         # Make new dict of available_presets including only
                         # those applicable to the next level
-                        level_available_presets = {k: v[preset_key]
-                          for k, v in available_presets.items()
-                          if preset_key in v}
-                        self.process_level(
-                          spec[preset_key][index],
-                          source_spec.get(preset_key, {}).get(index, {}),
-                          indexed_levels.get(preset_key, {}),
-                          level_available_presets,
-                          selected_presets,
-                          path=path+[preset_key, index])
+                        level_available_presets = {k: v[preset_key] for k, v in
+                        available_presets.items() if preset_key in v}
+                        self.process_level(spec[preset_key][index],
+                            source_spec.get(preset_key, {}).get(index, {}),
+                            indexed_levels.get(preset_key, {}),
+                            level_available_presets, selected_presets,
+                            path=path + [preset_key, index])
                 # This level is not indexed
                 else:
                     # preset_val is a dict; recurse
                     if isinstance(preset_val, dict):
                         # Make new dict of available_presets including only
                         # those applicable to the next level
-                        level_available_presets = {k: v[preset_key]
-                          for k, v in available_presets.items()
-                          if preset_key in v}
+                        level_available_presets = {k: v[preset_key] for k, v in
+                        available_presets.items() if preset_key in v}
                         if preset_key not in spec:
                             self.initialize(spec, preset_key,
-                              comment="{0}:{1}".format(self.name,
-                              selected_preset))
-                        self.process_level(
-                          spec[preset_key],
-                          source_spec.get(preset_key, {}),
-                          indexed_levels.get(preset_key, {}),
-                          level_available_presets,
-                          selected_presets,
-                          path=path+[preset_key])
+                                comment="{0}:{1}".format(self.name,
+                                    selected_preset))
+                        self.process_level(spec[preset_key],
+                            source_spec.get(preset_key, {}),
+                            indexed_levels.get(preset_key, {}),
+                            level_available_presets, selected_presets,
+                            path=path + [preset_key])
                     # preset_val is singular; store and continue loop
                     else:
                         self.set(spec, preset_key, preset_val,
-                          comment="{0}:{1}".format(self.name, selected_preset))
+                            comment="{0}:{1}".format(self.name,
+                                selected_preset))

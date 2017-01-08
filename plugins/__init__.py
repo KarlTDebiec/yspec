@@ -11,11 +11,15 @@
 Constructs specification
 """
 ################################### MODULES ###################################
-from __future__ import absolute_import,division,print_function,unicode_literals
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
+
 if __name__ == "__main__":
     __package__ = str("yspec.plugins")
     import yspec.plugins
 from .. import YSpecCLTool
+
+
 ################################### CLASSES ###################################
 class YSpecPlugin(YSpecCLTool):
     """
@@ -53,16 +57,15 @@ class YSpecPlugin(YSpecCLTool):
             else:
                 description = class_.__doc__
 
-
         # Add description of this plugin
-        help_dest.description += "  {0}\n".format(name) + strfmt(description ,
-          width=79, initial_indent="    ", subsequent_indent="    ") + "\n"
+        help_dest.description += "  {0}\n".format(name) + strfmt(description,
+            width=79, initial_indent="    ", subsequent_indent="    ") + "\n"
 
         return parser
 
     @classmethod
     def get_config(class_, attr, constructor=None, attr_of_constructor=False,
-        **kwargs):
+            **kwargs):
         """
         """
         from .. import yaml_load
@@ -79,8 +82,9 @@ class YSpecPlugin(YSpecCLTool):
                 if hasattr(constructor, attr):
                     return yaml_load(getattr(constructor, attr))
             else:
-                if (hasattr(constructor, "plugin_config")
-                and plugin_name in constructor.plugin_config):
+                if (hasattr(constructor,
+                        "plugin_config") and plugin_name in
+                    constructor.plugin_config):
                     config = yaml_load(constructor.plugin_config[plugin_name])
                     if attr in config:
                         return config[attr]

@@ -11,11 +11,15 @@
 Copies command line arguments to nascent spec
 """
 ################################### MODULES ###################################
-from __future__ import absolute_import,division,print_function,unicode_literals
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
+
 if __name__ == "__main__":
     __package__ = str("yspec.plugins")
     import yspec.plugins
 from . import YSpecPlugin
+
+
 ################################### CLASSES ###################################
 class CLArgumentPlugin(YSpecPlugin):
     """
@@ -53,4 +57,3 @@ class CLArgumentPlugin(YSpecPlugin):
                 if cl_val is not None:
                     self.set(spec, cl_key, cl_val, comment=self.name)
         return spec
-

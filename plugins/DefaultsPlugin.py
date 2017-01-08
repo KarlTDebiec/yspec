@@ -11,11 +11,15 @@
 Adds default arguments to a nascent spec
 """
 ################################### MODULES ###################################
-from __future__ import absolute_import,division,print_function,unicode_literals
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
+
 if __name__ == "__main__":
     __package__ = str("yspec.plugins")
     import yspec.plugins
 from . import YSpecPlugin
+
+
 ################################### CLASSES ###################################
 class DefaultsPlugin(YSpecPlugin):
     """
@@ -35,7 +39,7 @@ class DefaultsPlugin(YSpecPlugin):
         """
         """
         self.indexed_levels = self.get_config("indexed_levels",
-          attr_of_constructor=True, **kwargs)
+            attr_of_constructor=True, **kwargs)
         self.defaults = self.get_config("defaults", **kwargs)
 
     def __call__(self, spec, source_spec=None, **kwargs):
@@ -52,7 +56,7 @@ class DefaultsPlugin(YSpecPlugin):
         """
         if source_spec is not None:
             self.process_level(spec, source_spec, self.indexed_levels,
-              self.defaults)
+                self.defaults)
         return spec
 
     def process_level(self, spec, source_spec, indexed_levels, defaults):
@@ -81,25 +85,21 @@ class DefaultsPlugin(YSpecPlugin):
             if default_key in indexed_levels:
                 if default_key not in spec:
                     continue
-                indexes = sorted([k for k in spec[default_key]
-                            if str(k).isdigit()])
+                indexes = sorted(
+                    [k for k in spec[default_key] if str(k).isdigit()])
                 for index in indexes:
-                    self.process_level(
-                      spec[default_key][index],
-                      source_spec.get(default_key, {}).get(index, {}),
-                      indexed_levels.get(default_key, {}),
-                      default_val)
+                    self.process_level(spec[default_key][index],
+                        source_spec.get(default_key, {}).get(index, {}),
+                        indexed_levels.get(default_key, {}), default_val)
             # This level is not indexed
             else:
                 # default_val is a dict; recurse
                 if isinstance(default_val, dict):
                     if default_key not in spec:
                         self.initialize(spec, default_key)
-                    self.process_level(
-                      spec[default_key],
-                      source_spec.get(default_key, {}),
-                      indexed_levels.get(default_key, {}),
-                      default_val)
+                    self.process_level(spec[default_key],
+                        source_spec.get(default_key, {}),
+                        indexed_levels.get(default_key, {}), default_val)
                 # default_val is singular; store and continue loop
                 else:
                     self.set(spec, default_key, default_val)

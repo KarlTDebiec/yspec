@@ -19,10 +19,15 @@ General functions.
     - Double-check that warning/exception text wraps correctly
 """
 ################################### MODULES ###################################
-from __future__ import absolute_import,division,print_function,unicode_literals
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
+
 import re
+
 import ruamel.yaml as yaml
 import six
+
+
 ################################## FUNCTIONS ##################################
 def wrapprint(text, width=80, subsequent_indent="  ", **kwargs):
     """
@@ -39,8 +44,9 @@ def wrapprint(text, width=80, subsequent_indent="  ", **kwargs):
     from textwrap import TextWrapper
 
     tw = TextWrapper(width=width, subsequent_indent=subsequent_indent,
-           **kwargs)
+        **kwargs)
     print(tw.fill(re.sub(r"\s+", " ", text)))
+
 
 def strfmt(text, width=None, subsequent_indent="  ", **kwargs):
     """
@@ -59,11 +65,12 @@ def strfmt(text, width=None, subsequent_indent="  ", **kwargs):
     from textwrap import TextWrapper
 
     if width is None:
-        return(re.sub(r"\s+", " ", text).strip())
+        return (re.sub(r"\s+", " ", text).strip())
     else:
         tw = TextWrapper(width=width, subsequent_indent=subsequent_indent,
-               **kwargs)
-        return(tw.fill(re.sub(r"\s+", " ", text).strip()))
+            **kwargs)
+        return (tw.fill(re.sub(r"\s+", " ", text).strip()))
+
 
 def merge_dicts(dict_1, dict_2):
     """
@@ -95,8 +102,8 @@ def merge_dicts(dict_1, dict_2):
         """
         for key in set(dict_1.keys()).union(dict_2.keys()):
             if key in dict_1 and key in dict_2:
-                if (isinstance(dict_1[key], dict)
-                and isinstance(dict_2[key], dict)):
+                if (isinstance(dict_1[key], dict) and isinstance(dict_2[key],
+                    dict)):
                     yield (key, dict(merge(dict_1[key], dict_2[key])))
                 else:
                     yield (key, dict_2[key])
@@ -109,9 +116,10 @@ def merge_dicts(dict_1, dict_2):
         raise Exception(strfmt("""Function yspec.merge_dicts() requires
           arguments 'dict_1' and 'dict_2' to be dictionaries; arguments
           of types '{0}' and '{1}' provided""".format(
-          dict_1.__class__.__name__, dict_2.__class__.__name__)))
+            dict_1.__class__.__name__, dict_2.__class__.__name__)))
 
     return dict(merge(dict_1, dict_2))
+
 
 def yaml_load(input_):
     """
@@ -165,13 +173,11 @@ def yaml_load(input_):
           string containing yaml-formatted data, or a
           dict.""".format(input.__class__.__name__))
 
+
 def yaml_dump(spec, colored=True, **kwargs):
     """
     """
-    dump_kw = dict(
-      Dumper           = yaml.RoundTripDumper,
-      block_seq_indent = 2,
-      indent           = 4)
+    dump_kw = dict(Dumper=yaml.RoundTripDumper, block_seq_indent=2, indent=4)
     dump_kw.update(kwargs)
     output = yaml.dump(spec, **dump_kw).strip()
     if colored:
@@ -179,14 +185,16 @@ def yaml_dump(spec, colored=True, **kwargs):
         from termcolor import colored
 
         colored_output = ""
-        available_colors = ["red", "green", "yellow", "blue", "magenta", "cyan"]
+        available_colors = ["red", "green", "yellow", "blue", "magenta",
+            "cyan"]
         selected_colors = {}
         for line in output.split("\n"):
             re_comment = re.compile(
-              "^(?P<line>.*)#[\s]*?(?P<plugin>[^\s:]+):?(?P<subplugin>[^\s]+)?$")
+                "^(?P<line>.*)#[\s]*?(?P<plugin>[^\s:]+):?(?P<subplugin>["
+                "^\s]+)?$")
             match = re.match(re_comment, line)
             if match:
-                plugin    = match.groupdict()["plugin"]
+                plugin = match.groupdict()["plugin"]
                 subplugin = match.groupdict()["subplugin"]
                 if plugin not in selected_colors:
                     selected_colors[plugin] = available_colors.pop(0)
@@ -199,6 +207,8 @@ def yaml_dump(spec, colored=True, **kwargs):
         return colored_output
     else:
         return output
+
+
 ################################### CLASSES ###################################
 class YSpecCLTool(object):
     """
@@ -255,7 +265,7 @@ class YSpecCLTool(object):
         if not hasattr(parser, "_mutually_exclusive_group_dict"):
             parser._mutually_exclusive_group_dict = {}
         group = parser._mutually_exclusive_group_dict.get(name,
-          parser.add_mutually_exclusive_group())
+            parser.add_mutually_exclusive_group())
         return group
 
     @classmethod
@@ -270,8 +280,8 @@ class YSpecCLTool(object):
             sys.argv += ["--help"]
         elif "--help" in sys.argv:
             help_groups = []
-            argv_prehelp  = sys.argv[:sys.argv.index("--help")]
-            argv_posthelp = list(sys.argv[sys.argv.index("--help")+1:])
+            argv_prehelp = sys.argv[:sys.argv.index("--help")]
+            argv_posthelp = list(sys.argv[sys.argv.index("--help") + 1:])
             for i, arg in enumerate(argv_posthelp):
                 if arg.startswith("-"):
                     break
@@ -280,8 +290,8 @@ class YSpecCLTool(object):
             sys.argv = argv_prehelp + ["-h"] + argv_posthelp[i:]
         elif "-h" in sys.argv:
             help_groups = []
-            argv_prehelp  = sys.argv[:sys.argv.index("-h")]
-            argv_posthelp = sys.argv[sys.argv.index("-h")+1:]
+            argv_prehelp = sys.argv[:sys.argv.index("-h")]
+            argv_posthelp = sys.argv[sys.argv.index("-h") + 1:]
             for i, arg in enumerate(argv_posthelp):
                 if arg.startswith("-"):
                     break
@@ -294,8 +304,8 @@ class YSpecCLTool(object):
         return help_groups
 
     @classmethod
-    def get_argparser(class_, parser=None, name=None, description=None, 
-        grouped_help=False, **kwargs):
+    def get_argparser(class_, parser=None, name=None, description=None,
+            grouped_help=False, **kwargs):
         """
         Arguments:
           parser (ArgumentParser, _SubParsersAction, optional): If
@@ -329,22 +339,21 @@ class YSpecCLTool(object):
         elif isinstance(parser, argparse._SubParsersAction):
             subparsers = parser
             parser = subparsers.add_parser(name=name, description=description,
-              help=description)
+                help=description)
         elif parser is None:
             if grouped_help:
-                parser = argparse.ArgumentParser( description=description,
-                  formatter_class=argparse.RawDescriptionHelpFormatter,
-                  add_help=False)
-                parser.add_argument(
-                  "-h", "--help", "--full-help",
-                  action = "help",
-                  help   = """show this help message and exit; detailed help
+                parser = argparse.ArgumentParser(description=description,
+                    formatter_class=argparse.RawDescriptionHelpFormatter,
+                    add_help=False)
+                parser.add_argument("-h", "--help", "--full-help",
+                    action="help", help="""show this help message and exit;
+                    detailed help
                            for sections: {0} may be obtained by adding them as
                            arguments; while '--full-help' may be used to view
-                           all available help """.format(str(map(str,
-                           class_.help_groups)).replace("'","")))
+                           all available help """.format(
+                        str(map(str, class_.help_groups)).replace("'", "")))
             else:
-                parser = argparse.ArgumentParser( description=description,
-                  formatter_class=argparse.RawDescriptionHelpFormatter)
+                parser = argparse.ArgumentParser(description=description,
+                    formatter_class=argparse.RawDescriptionHelpFormatter)
 
         return parser

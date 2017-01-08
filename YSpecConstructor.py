@@ -11,11 +11,15 @@
 Constructs yaml-format specification
 """
 ################################### MODULES ###################################
-from __future__ import absolute_import,division,print_function,unicode_literals
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
+
 if __name__ == "__main__":
     __package__ = str("yspec")
     import yspec
 from . import YSpecCLTool
+
+
 ################################### CLASSES ###################################
 class YSpecConstructor(YSpecCLTool):
     """
@@ -27,12 +31,10 @@ class YSpecConstructor(YSpecCLTool):
     from .plugins.PresetsPlugin import PresetsPlugin
     from .plugins.ManualPlugin import ManualPlugin
     from .plugins.SortPlugin import SortPlugin
-    available_plugins = OrderedDict([
-      ("initialize", InitializePlugin),
-      ("defaults", DefaultsPlugin),
-      ("presets", PresetsPlugin),
-      ("manual", ManualPlugin),
-      ("sort", SortPlugin)])
+    available_plugins = OrderedDict(
+        [("initialize", InitializePlugin), ("defaults", DefaultsPlugin),
+            ("presets", PresetsPlugin), ("manual", ManualPlugin),
+            ("sort", SortPlugin)])
     default_plugins = ["initialize", "defaults", "presets", "manual", "sort"]
     indexed_levels = """"""
     plugin_config = dict()
@@ -55,42 +57,28 @@ class YSpecConstructor(YSpecCLTool):
             parser.set_defaults(class_=class_)
 
         verbosity = class_.add_mutually_exclusive_argument_group(parser,
-          "verbosity")
-        class_.add_argument(verbosity,
-          "-v", "--verbose",
-          action   = "count",
-          default  = 1,
-          help     = "enable verbose output, may be specified more than once")
-        class_.add_argument(verbosity,
-          "-q", "--quiet",
-          action   = "store_const",
-          const    = 0,
-          default  = 1,
-          dest     = "verbose",
-          help     = "disable verbose output")
-        class_.add_argument(parser,
-          "-d", "--debug",
-          action   = "count",
-          default  = 1,
-          help     = "enable debug output, may be specified more than once")
+            "verbosity")
+        class_.add_argument(verbosity, "-v", "--verbose", action="count",
+            default=1,
+            help="enable verbose output, may be specified more than once")
+        class_.add_argument(verbosity, "-q", "--quiet", action="store_const",
+            const=0, default=1, dest="verbose", help="disable verbose output")
+        class_.add_argument(parser, "-d", "--debug", action="count", default=1,
+            help="enable debug output, may be specified more than once")
 
         if len(class_.available_plugins) > 0:
-            if (hasattr(class_, "default_plugins")
-            and len(class_.default_plugins) > 0):
-                parser.description += \
-                  "\ndefault plugin order:\n  {0}\n\n".format(
-                  " → ".join( class_.default_plugins))
+            if (hasattr(class_, "default_plugins") and len(
+                class_.default_plugins) > 0):
+                parser.description += "\ndefault plugin order:\n  {" \
+                                      "0}\n\n".format(
+                    " → ".join(class_.default_plugins))
             parser.description += "available plugins:\n"
             for name, plugin in class_.available_plugins.items():
                 plugin.add_arguments(parser, constructor=class_)
 
-        class_.add_argument(parser,
-          "-spec",
-          required = True,
-          dest     = "source_spec",
-          metavar  = "SPEC",
-          type     = str,
-          help     = "input file from which to load source spec")
+        class_.add_argument(parser, "-spec", required=True, dest="source_spec",
+            metavar="SPEC", type=str,
+            help="input file from which to load source spec")
         parser.set_defaults(class_=class_)
 
         return parser
@@ -117,7 +105,7 @@ class YSpecConstructor(YSpecCLTool):
         self.spec = CommentedMap()
         for plugin_name in self.plugins:
             plugin = self.available_plugins[plugin_name](constructor=self,
-              **kwargs)
+                **kwargs)
             self.spec = plugin(self.spec, self.source_spec, **kwargs)
             # Output intermediate spec
             if verbose >= 3:
@@ -139,6 +127,7 @@ class YSpecConstructor(YSpecCLTool):
         # Parse arguments
         kwargs = vars(parser.parse_args())
         kwargs.pop("class_")(**kwargs)
+
 
 #################################### MAIN #####################################
 if __name__ == "__main__":

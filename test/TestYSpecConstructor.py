@@ -11,9 +11,12 @@
 Test constructor
 """
 ################################### MODULES ###################################
-from __future__ import absolute_import,division,print_function,unicode_literals
-import ruamel.yaml as yaml
+from __future__ import (absolute_import, division, print_function,
+    unicode_literals)
+
 from yspec.YSpecConstructor import YSpecConstructor
+
+
 ################################### CLASSES ###################################
 class TestYSpecConstructor(YSpecConstructor):
     """
@@ -24,19 +27,15 @@ class TestYSpecConstructor(YSpecConstructor):
     from yspec.plugins.ManualPlugin import ManualPlugin
     from yspec.plugins.SortPlugin import SortPlugin
 
-    available_plugins = dict(
-      initialize = InitializePlugin,
-      defaults   = DefaultsPlugin,
-      presets    = PresetsPlugin,
-      manual     = ManualPlugin,
-      sort       = SortPlugin)
+    available_plugins = dict(initialize=InitializePlugin,
+        defaults=DefaultsPlugin, presets=PresetsPlugin, manual=ManualPlugin,
+        sort=SortPlugin)
     default_plugins = ["initialize", "defaults", "presets", "manual", "sort"]
     indexed_levels = """
       level_1:
           level_2:
               level_3:"""
-    plugin_config = dict(
-      defaults = """
+    plugin_config = dict(defaults="""
         defaults:
           default_0.0: default_0.0_value
           level_1:
@@ -45,8 +44,7 @@ class TestYSpecConstructor(YSpecConstructor):
             level_2:
               default_2.1: default_2.1_value
               level_3:
-                default_3.1: default_3.1_value""",
-      presets = """
+                default_3.1: default_3.1_value""", presets="""
         available_presets:
           preset_1:
             _class: preset_class_1
@@ -68,6 +66,7 @@ class TestYSpecConstructor(YSpecConstructor):
                 preset_2_2.1: preset_2_2.1_value
                 level_3:
                   preset_2_3.1: preset_2_3.1_value""")
+
 
 #################################### MAIN #####################################
 if __name__ == "__main__":

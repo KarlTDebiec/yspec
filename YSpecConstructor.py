@@ -40,7 +40,7 @@ class YSpecConstructor(YSpecCLTool):
     plugin_config = dict()
 
     @classmethod
-    def construct_argparser(class_, **kwargs):
+    def construct_argparser(cls, **kwargs):
         """
         Adds arguments to a nascent argument parser
 
@@ -52,34 +52,34 @@ class YSpecConstructor(YSpecCLTool):
         """
 
         # Process arguments
-        parser = class_.get_argparser(**kwargs)
-        if parser.get_default("class_") is None:
-            parser.set_defaults(class_=class_)
+        parser = cls.get_argparser(**kwargs)
+        if parser.get_default("cls") is None:
+            parser.set_defaults(cls=cls)
 
-        verbosity = class_.add_mutually_exclusive_argument_group(parser,
+        verbosity = cls.add_mutually_exclusive_argument_group(parser,
             "verbosity")
-        class_.add_argument(verbosity, "-v", "--verbose", action="count",
+        cls.add_argument(verbosity, "-v", "--verbose", action="count",
             default=1,
             help="enable verbose output, may be specified more than once")
-        class_.add_argument(verbosity, "-q", "--quiet", action="store_const",
+        cls.add_argument(verbosity, "-q", "--quiet", action="store_const",
             const=0, default=1, dest="verbose", help="disable verbose output")
-        class_.add_argument(parser, "-d", "--debug", action="count", default=1,
+        cls.add_argument(parser, "-d", "--debug", action="count", default=1,
             help="enable debug output, may be specified more than once")
 
-        if len(class_.available_plugins) > 0:
-            if (hasattr(class_, "default_plugins") and len(
-                class_.default_plugins) > 0):
+        if len(cls.available_plugins) > 0:
+            if (hasattr(cls, "default_plugins") and len(
+                cls.default_plugins) > 0):
                 parser.description += "\ndefault plugin order:\n  {" \
                                       "0}\n\n".format(
-                    " → ".join(class_.default_plugins))
+                    " → ".join(cls.default_plugins))
             parser.description += "available plugins:\n"
-            for name, plugin in class_.available_plugins.items():
-                plugin.add_arguments(parser, constructor=class_)
+            for name, plugin in cls.available_plugins.items():
+                plugin.add_arguments(parser, constructor=cls)
 
-        class_.add_argument(parser, "-spec", required=True, dest="source_spec",
+        cls.add_argument(parser, "-spec", required=True, dest="source_spec",
             metavar="SPEC", type=str,
             help="input file from which to load source spec")
-        parser.set_defaults(class_=class_)
+        parser.set_defaults(cls=cls)
 
         return parser
 
@@ -118,15 +118,15 @@ class YSpecConstructor(YSpecCLTool):
             print(yaml_dump(self.spec))
 
     @classmethod
-    def main(class_):
+    def main(cls):
         """
         """
         # Prepare argument parser
-        parser = class_.construct_argparser()
+        parser = cls.construct_argparser()
 
         # Parse arguments
         kwargs = vars(parser.parse_args())
-        kwargs.pop("class_")(**kwargs)
+        kwargs.pop("cls")(**kwargs)
 
 
 #################################### MAIN #####################################

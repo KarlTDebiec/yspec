@@ -38,7 +38,7 @@ class PresetsPlugin(YSpecPlugin):
     description = """adds selected 'preset' arguments to nascent spec"""
 
     @classmethod
-    def add_arguments(class_, parser, **kwargs):
+    def add_arguments(cls, parser, **kwargs):
         """
         Adds arguments to a nascent argument parser
 
@@ -55,13 +55,13 @@ class PresetsPlugin(YSpecPlugin):
 
         # Arguments unique to this plugin
         arg_group = parser.add_argument_group(
-            "arguments for {0} plugin".format(class_.name))
-        class_.add_argument(arg_group, "-presets", dest="selected_presets",
+            "arguments for {0} plugin".format(cls.name))
+        cls.add_argument(arg_group, "-presets", dest="selected_presets",
             type=str, nargs="+", metavar="PRESET",
             help="selected presets to apply to entire spec")
 
         # Format preset help text and extension pattern
-        available_presets = class_.initialize_available_presets(**kwargs)
+        available_presets = cls.initialize_available_presets(**kwargs)
         if len(available_presets) == 0:
             description = "no presets available\n"
         else:
@@ -110,12 +110,12 @@ class PresetsPlugin(YSpecPlugin):
         arg_group.description = description
 
         # Arguments inherited from superclass
-        super(PresetsPlugin, class_).add_arguments(parser=parser, **kwargs)
+        super(PresetsPlugin, cls).add_arguments(parser=parser, **kwargs)
 
         return parser
 
     @classmethod
-    def initialize_available_presets(class_, **kwargs):
+    def initialize_available_presets(cls, **kwargs):
         """
         Initializes available presets, carrying out inheritance and
         extension
@@ -131,7 +131,7 @@ class PresetsPlugin(YSpecPlugin):
         from .. import merge_dicts
 
         constructor = kwargs.get("constructor", None)
-        available_presets = class_.get_config("available_presets", **kwargs)
+        available_presets = cls.get_config("available_presets", **kwargs)
         if available_presets is None:
             return {}
 
@@ -141,7 +141,7 @@ class PresetsPlugin(YSpecPlugin):
         else:
             mro = getmro(type(constructor))
         if len(mro) >= 2:
-            super_presets = class_.initialize_available_presets(
+            super_presets = cls.initialize_available_presets(
                 constructor=mro[1])
         else:
             super_presets = {}

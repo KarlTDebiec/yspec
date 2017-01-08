@@ -28,7 +28,7 @@ class YSpecPlugin(YSpecCLTool):
     annotate = True
 
     @classmethod
-    def add_arguments(class_, parser, name=None, description=None, **kwargs):
+    def add_arguments(cls, parser, name=None, description=None, **kwargs):
         """
         Adds name and description of plugin to a nascent argument parser
 
@@ -47,15 +47,15 @@ class YSpecPlugin(YSpecCLTool):
         # Process arguments
         help_dest = kwargs.get("help_dest", parser)
         if name is None:
-            if hasattr(class_, "name"):
-                name = class_.name
+            if hasattr(cls, "name"):
+                name = cls.name
             else:
-                name = class_.__name__
+                name = cls.__name__
         if description is None:
-            if hasattr(class_, "description"):
-                description = class_.description
+            if hasattr(cls, "description"):
+                description = cls.description
             else:
-                description = class_.__doc__
+                description = cls.__doc__
 
         # Add description of this plugin
         help_dest.description += "  {0}\n".format(name) + strfmt(description,
@@ -64,16 +64,16 @@ class YSpecPlugin(YSpecCLTool):
         return parser
 
     @classmethod
-    def get_config(class_, attr, constructor=None, attr_of_constructor=False,
+    def get_config(cls, attr, constructor=None, attr_of_constructor=False,
             **kwargs):
         """
         """
         from .. import yaml_load
 
-        if hasattr(class_, "name"):
-            plugin_name = class_.name
+        if hasattr(cls, "name"):
+            plugin_name = cls.name
         else:
-            plugin_name = class_.__name__
+            plugin_name = cls.__name__
 
         if kwargs.get(attr) is not None:
             return kwargs[attr]

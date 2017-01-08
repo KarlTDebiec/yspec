@@ -269,7 +269,7 @@ class YSpecCLTool(object):
         return group
 
     @classmethod
-    def get_help_arg_groups(class_, **kwargs):
+    def get_help_arg_groups(cls, **kwargs):
         """
         """
         import sys
@@ -304,7 +304,7 @@ class YSpecCLTool(object):
         return help_groups
 
     @classmethod
-    def get_argparser(class_, parser=None, name=None, description=None,
+    def get_argparser(cls, parser=None, name=None, description=None,
             grouped_help=False, **kwargs):
         """
         Arguments:
@@ -324,15 +324,15 @@ class YSpecCLTool(object):
         from . import strfmt
 
         if name is None:
-            if hasattr(class_, "name"):
-                name = class_.name
+            if hasattr(cls, "name"):
+                name = cls.name
             else:
-                name = class_.__name__
+                name = cls.__name__
         if description is None:
-            if hasattr(class_, "description"):
-                description = class_.description
+            if hasattr(cls, "description"):
+                description = cls.description
             else:
-                description = strfmt(class_.__doc__.split("\n\n")[0]) + "\n"
+                description = strfmt(cls.__doc__.split("\n\n")[0]) + "\n"
 
         if isinstance(parser, argparse.ArgumentParser):
             pass
@@ -351,7 +351,7 @@ class YSpecCLTool(object):
                            for sections: {0} may be obtained by adding them as
                            arguments; while '--full-help' may be used to view
                            all available help """.format(
-                        str(map(str, class_.help_groups)).replace("'", "")))
+                        str(map(str, cls.help_groups)).replace("'", "")))
             else:
                 parser = argparse.ArgumentParser(description=description,
                     formatter_class=argparse.RawDescriptionHelpFormatter)
